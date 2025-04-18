@@ -33,6 +33,10 @@ public class PetViewModel extends AndroidViewModel {
         repository.insert(pet);
     }
 
+    public long insertSync(Pet pet) {
+        return repository.insertSync(pet);
+    }
+
     public void update(Pet pet) {
         repository.update(pet);
     }

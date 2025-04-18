@@ -27,6 +27,7 @@ import com.example.taskperf1.viewmodels.GrowthEntryViewModel;
 import com.example.taskperf1.viewmodels.PetViewModel;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -39,6 +40,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -111,29 +113,54 @@ public class GrowthTrackerActivity extends AppCompatActivity {
         lengthGainValue = findViewById(R.id.lengthGainValue);
 
         // Weight chart
-        weightChart = new LineChart(this);
-        findViewById(R.id.chartContainer).setVisibility(View.GONE); // Hide placeholder
-        ((android.widget.FrameLayout) findViewById(R.id.chartContainer)).addView(weightChart);
+        weightChart = findViewById(R.id.weightChart);
+        if (weightChart == null) {
+            weightChart = new LineChart(this);
+            findViewById(R.id.chartContainer).setVisibility(View.GONE); // Hide placeholder
+            ((android.widget.FrameLayout) findViewById(R.id.chartContainer)).addView(weightChart);
+        }
+
+        // Configure chart
+        setupEmptyChart();
 
         // Growth history RecyclerView
         RecyclerView recyclerView = findViewById(R.id.growthHistoryRecyclerView);
-        if (recyclerView == null) {
-            // If the RecyclerView isn't found in layout, try to find the container
-            View container = findViewById(R.id.growthHistoryCard);
-            if (container != null) {
-                // You may need to dynamically add a RecyclerView here
-                recyclerView = new RecyclerView(this);
-                recyclerView.setId(R.id.growthHistoryRecyclerView);
-                ((android.widget.LinearLayout) container.findViewById(
-                        android.R.id.content)).addView(recyclerView);
-            }
-        }
+        adapter = new GrowthEntryAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
 
-        if (recyclerView != null) {
-            adapter = new GrowthEntryAdapter(this);
-            recyclerView.setAdapter(adapter);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
+    private void setupEmptyChart() {
+        weightChart.getDescription().setEnabled(false);
+        weightChart.setNoDataText("No growth data available yet");
+        weightChart.setNoDataTextColor(ContextCompat.getColor(this, R.color.gray_500));
+        weightChart.setDrawGridBackground(false);
+        weightChart.setDrawBorders(false);
+        weightChart.setTouchEnabled(true);
+        weightChart.setDragEnabled(true);
+        weightChart.setScaleEnabled(true);
+        weightChart.setPinchZoom(true);
+        weightChart.setExtraOffsets(10, 10, 10, 10);
+
+        // X-axis setup
+        XAxis xAxis = weightChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+
+        // Y-axis setup
+        YAxis leftAxis = weightChart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setAxisMinimum(0f); // Always start from 0
+
+        // Disable right Y-axis
+        weightChart.getAxisRight().setEnabled(false);
+
+        // Legend setup
+        weightChart.getLegend().setEnabled(false);
+
+        // Set empty data
+        weightChart.invalidate();
     }
 
     private void setupBackButton() {
@@ -242,7 +269,22 @@ public class GrowthTrackerActivity extends AppCompatActivity {
 
         petBreedTextView.setText(pet.getBreed() + " • " + ageText);
 
-        // Load profile picture if available - you can implement this with your image loading library
+        // Load profile picture if available
+        if (pet.getProfilePicture() != null && !pet.getProfilePicture().isEmpty()) {
+            try {
+                android.net.Uri imageUri = android.net.Uri.parse(pet.getProfilePicture());
+                com.bumptech.glide.Glide.with(this)
+                        .load(imageUri)
+                        .placeholder(R.drawable.dogpic)
+                        .error(R.drawable.dogpic)
+                        .centerCrop()
+                        .into(petImageView);
+            } catch (Exception e) {
+                petImageView.setImageResource(R.drawable.dogpic);
+            }
+        } else {
+            petImageView.setImageResource(R.drawable.dogpic);
+        }
     }
 
     private void loadGrowthEntries() {
@@ -317,22 +359,57 @@ public class GrowthTrackerActivity extends AppCompatActivity {
     }
 
     private void updateChart(List<GrowthEntry> entries) {
-        if (entries == null || entries.isEmpty()) return;
+        if (entries == null || entries.isEmpty()) {
+            setupEmptyChart();
+            return;
+        }
+
+        // Create a copy of entries and sort from oldest to newest for the chart
+        List<GrowthEntry> sortedEntries = new ArrayList<>(entries);
+        Collections.reverse(sortedEntries);
 
         // Create entries for the chart
         List<Entry> weightEntries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        // Process in reverse order (oldest to newest) for the chart
+        // Format for displaying dates on chart
         SimpleDateFormat chartDateFormat = new SimpleDateFormat("MMM dd", Locale.getDefault());
-        for (int i = entries.size() - 1; i >= 0; i--) {
-            GrowthEntry entry = entries.get(i);
-            weightEntries.add(new Entry(entries.size() - 1 - i, entry.getWeight()));
+
+        // Add data points
+        for (int i = 0; i < sortedEntries.size(); i++) {
+            GrowthEntry entry = sortedEntries.get(i);
+            weightEntries.add(new Entry(i, entry.getWeight()));
             labels.add(chartDateFormat.format(entry.getEntryDate()));
         }
 
         // Create dataset
         LineDataSet dataSet = new LineDataSet(weightEntries, "Weight (kg)");
+        styleDataSet(dataSet);
+
+        // Set chart data
+        LineData lineData = new LineData(dataSet);
+        weightChart.setData(lineData);
+
+        // Set X-axis labels
+        XAxis xAxis = weightChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+
+        // Handle single point - adjust Y axis for better visibility
+        if (sortedEntries.size() == 1) {
+            float weight = sortedEntries.get(0).getWeight();
+            YAxis leftAxis = weightChart.getAxisLeft();
+            leftAxis.setAxisMinimum(Math.max(0, weight - (weight * 0.2f))); // 20% below current weight, but not below 0
+            leftAxis.setAxisMaximum(weight + (weight * 0.2f)); // 20% above current weight
+
+            // Add padding for single point
+            weightChart.setExtraOffsets(20, 20, 20, 20);
+        }
+
+        // Refresh the chart
+        weightChart.invalidate();
+    }
+
+    private void styleDataSet(LineDataSet dataSet) {
         dataSet.setColor(ContextCompat.getColor(this, R.color.brand_green));
         dataSet.setCircleColor(ContextCompat.getColor(this, R.color.brand_green));
         dataSet.setLineWidth(2f);
@@ -342,27 +419,12 @@ public class GrowthTrackerActivity extends AppCompatActivity {
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(ContextCompat.getColor(this, R.color.brand_green_light));
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setDrawValues(true);
 
-        // Set chart data
-        LineData lineData = new LineData(dataSet);
-        weightChart.setData(lineData);
-
-        // Customize X axis
-        XAxis xAxis = weightChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-
-        // Other chart settings
-        weightChart.getDescription().setEnabled(false);
-        weightChart.getLegend().setEnabled(false);
-        weightChart.setTouchEnabled(true);
-        weightChart.setDragEnabled(true);
-        weightChart.setScaleEnabled(true);
-        weightChart.getAxisRight().setEnabled(false);
-
-        // Refresh the chart
-        weightChart.invalidate();
+        // For single or few data points, make sure values are shown
+        if (dataSet.getEntryCount() <= 3) {
+            dataSet.setValueTextSize(12f);
+        }
     }
 
     private void showAddEntryDialog() {
@@ -395,14 +457,30 @@ public class GrowthTrackerActivity extends AppCompatActivity {
         dateInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new DatePickerDialog(GrowthTrackerActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        selectedDate.set(year, month, dayOfMonth);
-                        dateInput.setText(dateFormatter.format(selectedDate.getTime()));
-                    }
-                }, selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH),
-                        selectedDate.get(Calendar.DAY_OF_MONTH)).show();
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        GrowthTrackerActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                selectedDate.set(year, month, dayOfMonth);
+                                dateInput.setText(dateFormatter.format(selectedDate.getTime()));
+                            }
+                        },
+                        selectedDate.get(Calendar.YEAR),
+                        selectedDate.get(Calendar.MONTH),
+                        selectedDate.get(Calendar.DAY_OF_MONTH)
+                );
+
+                // Set the maximum date as today
+                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+                datePickerDialog.show();
+
+                // Style the date picker dialog buttons
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
+                        .setTextColor(ContextCompat.getColor(GrowthTrackerActivity.this, R.color.brand_green));
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE)
+                        .setTextColor(ContextCompat.getColor(GrowthTrackerActivity.this, R.color.gray_600));
             }
         });
 
@@ -445,6 +523,10 @@ public class GrowthTrackerActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Make sure buttons use brand colors
+        saveButton.setBackgroundColor(ContextCompat.getColor(this, R.color.brand_green));
+        cancelButton.setTextColor(ContextCompat.getColor(this, R.color.gray_600));
 
         dialog.show();
     }

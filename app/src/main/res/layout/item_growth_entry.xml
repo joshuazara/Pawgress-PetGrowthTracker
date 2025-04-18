@@ -38,6 +38,7 @@
             android:text="Age: 6 months" />
 
         <LinearLayout
+            android:id="@+id/metricsContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -45,7 +46,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ageText">
-
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -70,7 +70,6 @@
                     android:text="5.2 kg" />
             </LinearLayout>
 
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -94,7 +93,6 @@
                     android:text="32 cm" />
             </LinearLayout>
 
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -117,8 +115,23 @@
                     android:textStyle="bold"
                     android:text="48 cm" />
             </LinearLayout>
-
         </LinearLayout>
+
+        <!-- Notes section added -->
+        <TextView
+            android:id="@+id/notesText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/gray_600"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/metricsContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Sample notes about this measurement"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

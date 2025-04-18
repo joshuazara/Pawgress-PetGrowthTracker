@@ -79,7 +79,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
-
+            <!-- Pet Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/petInfoCard"
                 android:layout_width="match_parent"
@@ -136,7 +136,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
+            <!-- Growth Chart Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/growthChartCard"
                 android:layout_width="match_parent"
@@ -159,20 +159,25 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-
                     <FrameLayout
                         android:id="@+id/chartContainer"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/chart_placeholder_bg"/>
+                        android:layout_marginTop="8dp">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/weightChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-
+            <!-- Growth Metrics Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/growthMetricsCard"
                 android:layout_width="match_parent"
@@ -201,7 +206,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-
+                        <!-- Current Weight -->
                         <TextView
                             android:id="@+id/currentWeightLabel"
                             android:layout_width="wrap_content"
@@ -223,7 +228,7 @@
                             app:layout_constraintTop_toBottomOf="@id/currentWeightLabel"
                             android:text="5.2 kg" />
 
-
+                        <!-- Weight Gain -->
                         <TextView
                             android:id="@+id/weightGainLabel"
                             android:layout_width="wrap_content"
@@ -245,7 +250,7 @@
                             app:layout_constraintTop_toBottomOf="@id/weightGainLabel"
                             android:text="+0.8 kg" />
 
-
+                        <!-- Current Height -->
                         <TextView
                             android:id="@+id/heightLabel"
                             android:layout_width="wrap_content"
@@ -268,7 +273,7 @@
                             app:layout_constraintTop_toBottomOf="@id/heightLabel"
                             android:text="32 cm" />
 
-
+                        <!-- Height Gain -->
                         <TextView
                             android:id="@+id/heightGainLabel"
                             android:layout_width="wrap_content"
@@ -291,7 +296,7 @@
                             app:layout_constraintTop_toBottomOf="@id/heightGainLabel"
                             android:text="+2.5 cm" />
 
-
+                        <!-- Current Length -->
                         <TextView
                             android:id="@+id/lengthLabel"
                             android:layout_width="wrap_content"
@@ -314,7 +319,7 @@
                             app:layout_constraintTop_toBottomOf="@id/lengthLabel"
                             android:text="48 cm" />
 
-
+                        <!-- Length Gain -->
                         <TextView
                             android:id="@+id/lengthGainLabel"
                             android:layout_width="wrap_content"
@@ -343,7 +348,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
+            <!-- Growth History Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/growthHistoryCard"
                 android:layout_width="match_parent"
@@ -396,7 +401,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-
+    <!-- Floating Action Button for adding entries -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addGrowthEntryFab"
         android:layout_width="wrap_content"

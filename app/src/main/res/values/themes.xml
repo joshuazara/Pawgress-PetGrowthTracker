@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.TaskPerf1" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">#69D16C</item>
-        <item name="colorPrimaryContainer">#E8F5E9</item>
+        <item name="colorPrimary">@color/brand_green</item>
+        <item name="colorPrimaryDark">@color/brand_green_dark</item>
+        <item name="colorAccent">@color/brand_green</item>
+        <item name="colorPrimaryContainer">@color/brand_green_light</item>
         <item name="android:windowBackground">@color/white</item>
+
+        <!-- Dialog button color -->
+        <item name="colorPrimaryVariant">@color/brand_green</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/brand_green</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/gray_600</item>
+    </style>
+
+    <style name="NeutralButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/red</item>
     </style>
 
     <style name="CircularImageView">
@@ -21,5 +41,10 @@
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="colorPrimary">@color/brand_green</item>
+        <item name="colorAccent">@color/brand_green</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
     </style>
-</resources>
+    </resources>

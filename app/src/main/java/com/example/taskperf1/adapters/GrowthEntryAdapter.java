@@ -69,6 +69,14 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
         holder.weightTextView.setText(String.format(Locale.getDefault(), "%.1f kg", currentEntry.getWeight()));
         holder.heightTextView.setText(String.format(Locale.getDefault(), "%.1f cm", currentEntry.getHeight()));
         holder.lengthTextView.setText(String.format(Locale.getDefault(), "%.1f cm", currentEntry.getLength()));
+
+        // Set notes if available
+        if (holder.notesTextView != null && currentEntry.getNotes() != null && !currentEntry.getNotes().isEmpty()) {
+            holder.notesTextView.setText(currentEntry.getNotes());
+            holder.notesTextView.setVisibility(View.VISIBLE);
+        } else if (holder.notesTextView != null) {
+            holder.notesTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -92,6 +100,7 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
         private TextView weightTextView;
         private TextView heightTextView;
         private TextView lengthTextView;
+        private TextView notesTextView;
 
         GrowthEntryViewHolder(View itemView) {
             super(itemView);
@@ -100,6 +109,7 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
             weightTextView = itemView.findViewById(R.id.weightValue);
             heightTextView = itemView.findViewById(R.id.heightValue);
             lengthTextView = itemView.findViewById(R.id.lengthValue);
+            notesTextView = itemView.findViewById(R.id.notesText);
         }
     }
 }

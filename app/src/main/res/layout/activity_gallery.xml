@@ -48,14 +48,11 @@
                     app:layout_constraintStart_toEndOf="@id/backButton"
                     app:layout_constraintTop_toTopOf="parent" />
 
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
@@ -80,458 +77,64 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-
-    <ScrollView
-        android:id="@+id/scrollView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photoGrid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:padding="2dp"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Empty state view -->
+    <LinearLayout
+        android:id="@+id/emptyStateContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tabLayout"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <GridLayout
-            android:id="@+id/photoGrid"
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_gallery"
+            app:tint="@color/gray_400"
+            android:alpha="0.5"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:padding="2dp">
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic9"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 24, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic8"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 23, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic7"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 22, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic6"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 21, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic5"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 20, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic4"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 19, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic3"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 18, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic2"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 17, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 16, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic7"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 15, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic6"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 14, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="2dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/dogpic9"
-                        android:contentDescription="Puppy Photo" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bottom_gradient" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="8dp"
-                        android:text="Mar 13, 2025"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </GridLayout>
-    </ScrollView>
+            android:text="No Photos Yet"
+            android:textColor="@color/gray_600"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add your first photo by tapping the Camera button in the Home screen"
+            android:textColor="@color/gray_500"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/takePictureButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_camera"
+        app:tint="@color/white"
+        app:backgroundTint="@color/brand_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Take a picture" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

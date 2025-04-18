@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +19,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskPerf1"
         tools:targetApi="31">
+        <activity
+            android:name=".PhotoDetailActivity"
+            android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.taskperf1.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".AllGrowthEntriesActivity"
             android:exported="false" />
@@ -29,7 +47,7 @@
             android:exported="false" />
         <activity
             android:name=".VaccineTrackerActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".GrowthTrackerActivity"
             android:exported="false" />

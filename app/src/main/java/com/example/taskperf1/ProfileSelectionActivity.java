@@ -1,5 +1,7 @@
 package com.example.taskperf1;
+
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,29 +12,22 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.app.Dialog;
-import android.view.Window;
-import android.view.WindowManager;
-import com.example.taskperf1.database.GrowthEntry;
-import com.example.taskperf1.viewmodels.GrowthEntryViewModel;
-import java.util.Date;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.example.taskperf1.database.GrowthEntry;
 import com.example.taskperf1.database.Pet;
+import com.example.taskperf1.viewmodels.GrowthEntryViewModel;
 import com.example.taskperf1.viewmodels.PetViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -65,9 +60,8 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_selection);
 
-        // Initialize ViewModel
+        // Initialize ViewModels
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
-
         growthEntryViewModel = new ViewModelProvider(this).get(GrowthEntryViewModel.class);
 
         // Find the container where pet cards will be added
@@ -174,7 +168,6 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         // Inflate the dialog layout
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_pet, null);
 
-
         // Get references to the input fields
         TextInputEditText nameInput = dialogView.findViewById(R.id.nameInput);
         TextInputEditText breedInput = dialogView.findViewById(R.id.breedInput);
@@ -204,88 +197,105 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             showDatePickerDialog(birthDateInput);
         });
 
-        // Create and show the dialog
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.DialogTheme)
+        // Create the custom dialog
+        androidx.appcompat.app.AlertDialog addDialog = new MaterialAlertDialogBuilder(this, R.style.DialogTheme)
                 .setTitle("Add New Pet")
                 .setView(dialogView)
-                .setPositiveButton("Add", (dialog, which) -> {
-                    // Validate inputs
-                    if (nameInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                .create();
 
-                    // Add validation for birth date
-                    if (birthDateInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(this, "Please enter a birth date", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Create and save the new pet
-                    Pet newPet = new Pet();
-                    newPet.setName(nameInput.getText().toString().trim());
-                    newPet.setBreed(breedInput.getText().toString().trim());
-                    newPet.setProfilePicture(tempSelectedImagePath);
-
-                    // Parse birth date
-                    try {
-                        String birthDateStr = birthDateInput.getText().toString().trim();
-                        newPet.setBirthDate(dateFormat.parse(birthDateStr));
-                    } catch (ParseException e) {
-                        Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Parse initial weight
-                    try {
-                        String weightStr = weightInput.getText().toString().trim();
-                        if (!weightStr.isEmpty()) {
-                            newPet.setInitialWeight(Float.parseFloat(weightStr));
-                        }
-                    } catch (NumberFormatException e) {
-                        // Ignore if not a valid number
-                    }
-
-                    // Parse initial height
-                    try {
-                        String heightStr = heightInput.getText().toString().trim();
-                        if (!heightStr.isEmpty()) {
-                            newPet.setInitialHeight(Float.parseFloat(heightStr));
-                        }
-                    } catch (NumberFormatException e) {
-                        // Ignore if not a valid number
-                    }
-
-                    // Save the new pet to the database
-                    petViewModel.insert(newPet);
-                    int petId = newPet.getPetId();
-
-                    // Create an initial growth entry if weight is provided
-                    if (newPet.getInitialWeight() > 0) {
-                        GrowthEntry initialGrowth = new GrowthEntry();
-                        initialGrowth.setPetId((int)petId);
-                        initialGrowth.setEntryDate(newPet.getBirthDate());
-                        initialGrowth.setWeight(newPet.getInitialWeight());
-                        initialGrowth.setHeight(newPet.getInitialHeight());
-                        initialGrowth.setLength(0); // Default value
-                        initialGrowth.setCreatedAt(new Date());
-                        initialGrowth.setNotes("Initial measurement");
-
-                        growthEntryViewModel.insert(initialGrowth);
-                    }
-
-                    Toast.makeText(this, "Pet added successfully", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null);
-
-// Get the dialog before showing it to customize window
-        Dialog dialog = builder.create();
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
+        // Set background for rounded corners
+        if (addDialog.getWindow() != null) {
+            addDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
         }
-        dialog.show();
 
+        // Add custom buttons to the dialog
+        MaterialButton positiveButton = dialogView.findViewById(R.id.saveButton);
+        MaterialButton negativeButton = dialogView.findViewById(R.id.cancelButton);
+
+        // The Cancel button simply dismisses the dialog
+        negativeButton.setOnClickListener(v -> {
+            addDialog.dismiss();
+        });
+
+        // The Save/Add button handles validation and saving
+        positiveButton.setOnClickListener(v -> {
+            // Validation code
+            if (nameInput.getText() == null || nameInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please enter a name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Add validation for birth date
+            if (birthDateInput.getText() == null || birthDateInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please enter a birth date", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Create a new pet object
+            Pet newPet = new Pet();
+            newPet.setName(nameInput.getText().toString().trim());
+            newPet.setBreed(breedInput.getText().toString().trim());
+            newPet.setProfilePicture(tempSelectedImagePath);
+            newPet.setCreatedAt(new Date()); // Set creation timestamp
+            newPet.setUpdatedAt(new Date()); // Set update timestamp
+
+            // Parse birth date
+            try {
+                String birthDateStr = birthDateInput.getText().toString().trim();
+                newPet.setBirthDate(dateFormat.parse(birthDateStr));
+            } catch (ParseException e) {
+                Toast.makeText(ProfileSelectionActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Parse initial weight
+            try {
+                String weightStr = weightInput.getText().toString().trim();
+                if (!weightStr.isEmpty()) {
+                    newPet.setInitialWeight(Float.parseFloat(weightStr));
+                }
+            } catch (NumberFormatException e) {
+                // Ignore if not a valid number
+            }
+
+            // Parse initial height
+            try {
+                String heightStr = heightInput.getText().toString().trim();
+                if (!heightStr.isEmpty()) {
+                    newPet.setInitialHeight(Float.parseFloat(heightStr));
+                }
+            } catch (NumberFormatException e) {
+                // Ignore if not a valid number
+            }
+
+            // Save the new pet to the database - this will generate a petId
+            long petId = petViewModel.insertSync(newPet);
+
+            // Check if petId was generated correctly
+            if (petId > 0) {
+                // Create an initial growth entry if weight is provided
+                if (newPet.getInitialWeight() > 0) {
+                    GrowthEntry initialGrowth = new GrowthEntry();
+                    initialGrowth.setPetId((int)petId);
+                    initialGrowth.setEntryDate(newPet.getBirthDate());
+                    initialGrowth.setWeight(newPet.getInitialWeight());
+                    initialGrowth.setHeight(newPet.getInitialHeight());
+                    initialGrowth.setLength(0); // Default value
+                    initialGrowth.setCreatedAt(new Date());
+                    initialGrowth.setNotes("Initial measurement");
+
+                    growthEntryViewModel.insert(initialGrowth);
+                }
+
+                Toast.makeText(ProfileSelectionActivity.this, "Pet added successfully", Toast.LENGTH_SHORT).show();
+                addDialog.dismiss();
+            } else {
+                Toast.makeText(ProfileSelectionActivity.this, "Error adding pet", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the dialog
+        addDialog.show();
     }
 
     private void showEditPetDialog(Pet pet) {
@@ -353,85 +363,109 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             showDatePickerDialog(birthDateInput);
         });
 
-        // Create dialog builder
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.DialogTheme)
+        // Create the custom dialog
+        androidx.appcompat.app.AlertDialog editDialog = new MaterialAlertDialogBuilder(this, R.style.DialogTheme)
                 .setTitle("Edit Pet")
                 .setView(dialogView)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    // Validate inputs
-                    if (nameInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                .create();
 
-                    if (birthDateInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(this, "Please enter a birth date", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Update the pet with new values
-                    pet.setName(nameInput.getText().toString().trim());
-                    pet.setBreed(breedInput.getText().toString().trim());
-                    pet.setProfilePicture(tempSelectedImagePath);
-                    pet.setUpdatedAt(new Date());
-
-                    // Parse birth date
-                    try {
-                        String birthDateStr = birthDateInput.getText().toString().trim();
-                        pet.setBirthDate(dateFormat.parse(birthDateStr));
-                    } catch (ParseException e) {
-                        Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Parse weight
-                    try {
-                        String weightStr = weightInput.getText().toString().trim();
-                        if (!weightStr.isEmpty()) {
-                            pet.setInitialWeight(Float.parseFloat(weightStr));
-                        }
-                    } catch (NumberFormatException e) {
-                        // Ignore if not a valid number
-                    }
-
-                    // Parse height
-                    try {
-                        String heightStr = heightInput.getText().toString().trim();
-                        if (!heightStr.isEmpty()) {
-                            pet.setInitialHeight(Float.parseFloat(heightStr));
-                        }
-                    } catch (NumberFormatException e) {
-                        // Ignore if not a valid number
-                    }
-
-                    // Save the updated pet to the database
-                    petViewModel.update(pet);
-
-                    Toast.makeText(this, "Pet updated successfully", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .setNeutralButton("Delete", (dialog, which) -> {
-                    // Confirm deletion
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle("Delete Pet")
-                            .setMessage("Are you sure you want to delete " + pet.getName() + "?")
-                            .setPositiveButton("Delete", (dialogInterface, i) -> {
-                                petViewModel.delete(pet);
-                                Toast.makeText(this, "Pet deleted", Toast.LENGTH_SHORT).show();
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
-                });
-
-        // Create dialog and customize window
-        Dialog alertDialog = builder.create();
-        Window window = alertDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
+        // Set background for rounded corners
+        if (editDialog.getWindow() != null) {
+            editDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
         }
 
-        // Show dialog
-        alertDialog.show();
+        // Add custom buttons to the dialog view
+        MaterialButton positiveButton = dialogView.findViewById(R.id.saveButton);
+        MaterialButton negativeButton = dialogView.findViewById(R.id.cancelButton);
+        LinearLayout buttonContainer = dialogView.findViewById(R.id.buttonContainer);
+
+        // Add a delete button
+        MaterialButton deleteButton = new MaterialButton(this, null);
+        deleteButton.setText("Delete");
+        deleteButton.setTextColor(getResources().getColor(R.color.red));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        params.setMargins(0, 0, 8, 0);
+        deleteButton.setLayoutParams(params);
+        buttonContainer.addView(deleteButton, 0); // Add as first child
+
+        // Adjust the other buttons' margins
+        ((LinearLayout.LayoutParams) negativeButton.getLayoutParams()).setMargins(8, 0, 8, 0);
+
+        // Set click listeners for the buttons
+        negativeButton.setOnClickListener(v -> {
+            editDialog.dismiss();
+        });
+
+        positiveButton.setOnClickListener(v -> {
+            // Validate inputs
+            if (nameInput.getText() == null || nameInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please enter a name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (birthDateInput.getText() == null || birthDateInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please enter a birth date", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Update the pet with new values
+            pet.setName(nameInput.getText().toString().trim());
+            pet.setBreed(breedInput.getText().toString().trim());
+            pet.setProfilePicture(tempSelectedImagePath);
+            pet.setUpdatedAt(new Date());
+
+            // Parse birth date
+            try {
+                String birthDateStr = birthDateInput.getText().toString().trim();
+                pet.setBirthDate(dateFormat.parse(birthDateStr));
+            } catch (ParseException e) {
+                Toast.makeText(ProfileSelectionActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Parse weight
+            try {
+                String weightStr = weightInput.getText().toString().trim();
+                if (!weightStr.isEmpty()) {
+                    pet.setInitialWeight(Float.parseFloat(weightStr));
+                }
+            } catch (NumberFormatException e) {
+                // Ignore if not a valid number
+            }
+
+            // Parse height
+            try {
+                String heightStr = heightInput.getText().toString().trim();
+                if (!heightStr.isEmpty()) {
+                    pet.setInitialHeight(Float.parseFloat(heightStr));
+                }
+            } catch (NumberFormatException e) {
+                // Ignore if not a valid number
+            }
+
+            // Save the updated pet to the database
+            petViewModel.update(pet);
+            Toast.makeText(ProfileSelectionActivity.this, "Pet updated successfully", Toast.LENGTH_SHORT).show();
+            editDialog.dismiss();
+        });
+
+        deleteButton.setOnClickListener(v -> {
+            // Confirm deletion
+            new MaterialAlertDialogBuilder(ProfileSelectionActivity.this)
+                    .setTitle("Delete Pet")
+                    .setMessage("Are you sure you want to delete " + pet.getName() + "?")
+                    .setPositiveButton("Delete", (dialogInterface, i) -> {
+                        petViewModel.delete(pet);
+                        Toast.makeText(ProfileSelectionActivity.this, "Pet deleted", Toast.LENGTH_SHORT).show();
+                        editDialog.dismiss();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+        // Show the dialog
+        editDialog.show();
     }
 
     private void showDatePickerDialog(final TextInputEditText dateField) {
@@ -468,6 +502,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         // Set the maximum date as today
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
 
+        // Show the dialog
         datePickerDialog.show();
     }
 

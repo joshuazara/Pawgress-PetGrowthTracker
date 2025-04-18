@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskperf1.adapters.GrowthEntryAdapter;
 import com.example.taskperf1.database.GrowthEntry;
-import com.example.taskperf1.database.entities.Pet;
+import com.example.taskperf1.database.Pet;
 import com.example.taskperf1.viewmodels.GrowthEntryViewModel;
 import com.example.taskperf1.viewmodels.PetViewModel;
 

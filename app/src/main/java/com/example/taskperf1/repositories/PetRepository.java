@@ -25,28 +25,36 @@ public class PetRepository {
         executorService = Executors.newSingleThreadExecutor();
     }
 
-
-        public LiveData<List<Pet>> getAllPets() {
-            return allPets;
-        }
-
-        public LiveData<Pet> getPetById(int petId) {
-            return petDao.getPetById(petId);
-        }
-
-
-        public void insert(Pet pet) {
-            pet.setCreatedAt(new Date());
-            pet.setUpdatedAt(new Date());
-            executorService.execute(() -> petDao.insert(pet));
-        }
-
-        public void update(Pet pet) {
-            pet.setUpdatedAt(new Date());
-            executorService.execute(() -> petDao.update(pet));
-        }
-
-        public void delete(Pet pet) {
-            executorService.execute(() -> petDao.delete(pet));
-        }
+    public LiveData<List<Pet>> getAllPets() {
+        return allPets;
     }
+
+    public LiveData<Pet> getPetById(int petId) {
+        return petDao.getPetById(petId);
+    }
+
+    public void insert(Pet pet) {
+        pet.setCreatedAt(new Date());
+        pet.setUpdatedAt(new Date());
+        executorService.execute(() -> petDao.insert(pet));
+    }
+
+    public long insertSync(Pet pet) {
+        if (pet.getCreatedAt() == null) {
+            pet.setCreatedAt(new Date());
+        }
+        if (pet.getUpdatedAt() == null) {
+            pet.setUpdatedAt(new Date());
+        }
+        return petDao.insert(pet);
+    }
+
+    public void update(Pet pet) {
+        pet.setUpdatedAt(new Date());
+        executorService.execute(() -> petDao.update(pet));
+    }
+
+    public void delete(Pet pet) {
+        executorService.execute(() -> petDao.delete(pet));
+    }
+}
