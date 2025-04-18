@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TaskPerf1" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#69D16C</item>
+        <item name="colorPrimaryContainer">#E8F5E9</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="CircularImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@null</item>
+        <item name="android:textColorHint">@color/text_primary</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+</resources>

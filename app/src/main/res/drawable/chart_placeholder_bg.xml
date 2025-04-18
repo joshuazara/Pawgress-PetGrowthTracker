@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="180dp"
+    android:viewportWidth="300"
+    android:viewportHeight="180">
+
+    <!-- Background -->
+    <path
+        android:fillColor="#F9F9F9"
+        android:pathData="M0,0h300v180h-300z" />
+
+    <!-- Horizontal grid lines -->
+    <path
+        android:strokeWidth="1"
+        android:strokeColor="#E0E0E0"
+        android:pathData="M30,30h240" />
+    <path
+        android:strokeWidth="1"
+        android:strokeColor="#E0E0E0"
+        android:pathData="M30,60h240" />
+    <path
+        android:strokeWidth="1"
+        android:strokeColor="#E0E0E0"
+        android:pathData="M30,90h240" />
+    <path
+        android:strokeWidth="1"
+        android:strokeColor="#E0E0E0"
+        android:pathData="M30,120h240" />
+    <path
+        android:strokeWidth="1"
+        android:strokeColor="#E0E0E0"
+        android:pathData="M30,150h240" />
+
+    <!-- Line graph -->
+    <path
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M40,140L100,110L160,90L220,70L260,50" />
+
+    <!-- Data points -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:pathData="M40,140m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:pathData="M100,110m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:pathData="M160,90m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:pathData="M220,70m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#69D16C"
+        android:pathData="M260,50m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+
+    <!-- X-axis labels -->
+    <path
+        android:fillColor="#6B7280"
+        android:pathData="M35,165L40,165Q40,170 35,170L35,165Z" />
+    <path
+        android:fillColor="#6B7280"
+        android:pathData="M95,165L100,165Q100,170 95,170L95,165Z" />
+    <path
+        android:fillColor="#6B7280"
+        android:pathData="M155,165L160,165Q160,170 155,170L155,165Z" />
+    <path
+        android:fillColor="#6B7280"
+        android:pathData="M215,165L220,165Q220,170 215,170L215,165Z" />
+    <path
+        android:fillColor="#6B7280"
+        android:pathData="M255,165L260,165Q260,170 255,170L255,165Z" />
+</vector>
