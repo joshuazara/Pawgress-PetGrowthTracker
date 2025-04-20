@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -54,6 +56,9 @@ public class ProfileSelectionActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 101;
     private String tempSelectedImagePath;
     private ShapeableImageView dialogPreviewImage;
+
+    // Gender options
+    private final String[] genderOptions = {"Male", "Female"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +180,13 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         TextInputEditText weightInput = dialogView.findViewById(R.id.weightInput);
         TextInputEditText heightInput = dialogView.findViewById(R.id.heightInput);
 
+        // Setup gender dropdown
+        AutoCompleteTextView genderInput = dialogView.findViewById(R.id.genderInput);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, genderOptions);
+        genderInput.setAdapter(adapter);
+        genderInput.setText(genderOptions[0], false); // Default to Male
+
         // Image selection components
         dialogPreviewImage = dialogView.findViewById(R.id.previewImage);
         MaterialButton selectImageButton = dialogView.findViewById(R.id.selectImageButton);
@@ -231,10 +243,17 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 return;
             }
 
+            // Validate gender
+            if (genderInput.getText() == null || genderInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please select a gender", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Create a new pet object
             Pet newPet = new Pet();
             newPet.setName(nameInput.getText().toString().trim());
             newPet.setBreed(breedInput.getText().toString().trim());
+            newPet.setGender(genderInput.getText().toString().trim());
             newPet.setProfilePicture(tempSelectedImagePath);
             newPet.setCreatedAt(new Date()); // Set creation timestamp
             newPet.setUpdatedAt(new Date()); // Set update timestamp
@@ -308,6 +327,19 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         TextInputEditText birthDateInput = dialogView.findViewById(R.id.birthDateInput);
         TextInputEditText weightInput = dialogView.findViewById(R.id.weightInput);
         TextInputEditText heightInput = dialogView.findViewById(R.id.heightInput);
+
+        // Setup gender dropdown
+        AutoCompleteTextView genderInput = dialogView.findViewById(R.id.genderInput);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, genderOptions);
+        genderInput.setAdapter(adapter);
+
+        // Select current gender or default to Male
+        if (pet.getGender() != null && !pet.getGender().isEmpty()) {
+            genderInput.setText(pet.getGender(), false);
+        } else {
+            genderInput.setText(genderOptions[0], false);
+        }
 
         // Image selection components
         dialogPreviewImage = dialogView.findViewById(R.id.previewImage);
@@ -409,9 +441,16 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 return;
             }
 
+            // Validate gender
+            if (genderInput.getText() == null || genderInput.getText().toString().trim().isEmpty()) {
+                Toast.makeText(ProfileSelectionActivity.this, "Please select a gender", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Update the pet with new values
             pet.setName(nameInput.getText().toString().trim());
             pet.setBreed(breedInput.getText().toString().trim());
+            pet.setGender(genderInput.getText().toString().trim());
             pet.setProfilePicture(tempSelectedImagePath);
             pet.setUpdatedAt(new Date());
 

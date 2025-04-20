@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Chowchow • 1 year"
+                android:text="Chowchow • Female • 1 year"
                 android:textColor="@color/gray_600"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -164,51 +164,12 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Heat Tracker -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/heatTrackerCard"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                app:rippleColor="#2069D16C">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginBottom="8dp"
-                        android:src="@drawable/ic_heat"
-                        app:tint="#69D16C" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Heat Tracker"
-                        android:textAlignment="center"
-                        android:textColor="#000000"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <!-- Camera -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cameraCard"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
@@ -241,21 +202,13 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
 
-        <!-- Feature Grid - Third Row (Only Gallery) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <!-- Gallery -->
+            <!-- Gallery - This will be in the second row now -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/galleryCard"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
@@ -290,6 +243,52 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
+        <!-- Feature Grid - Third Row (Heat Tracker) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <!-- Heat Tracker -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/heatTrackerCard"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white"
+                app:rippleColor="#2069D16C">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginBottom="8dp"
+                        android:src="@drawable/ic_heat"
+                        app:tint="#69D16C" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Heat Tracker"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/tipBannerCard"

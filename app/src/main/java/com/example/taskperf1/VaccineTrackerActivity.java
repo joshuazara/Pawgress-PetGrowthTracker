@@ -2,6 +2,7 @@ package com.example.taskperf1;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -143,9 +144,9 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         viewAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // For now, just scroll to the history section
-                // In the future, you could create a dedicated AllVaccinesActivity like AllGrowthEntriesActivity
-                vaccineHistoryRecyclerView.requestFocus();
+                Intent intent = new Intent(VaccineTrackerActivity.this, AllVaccineEntriesActivity.class);
+                intent.putExtra("pet_id", currentPetId);
+                startActivity(intent);
             }
         });
     }

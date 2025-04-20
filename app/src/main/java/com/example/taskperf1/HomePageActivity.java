@@ -28,6 +28,8 @@ public class HomePageActivity extends AppCompatActivity {
     private TextView petNameText;
     private TextView petBreedText;
     private TextView petTipText;
+    private MaterialCardView heatTrackerCard;
+    private MaterialCardView galleryCard;
 
     // Pet care tips array
     private String[] petCareTips = {
@@ -65,6 +67,8 @@ public class HomePageActivity extends AppCompatActivity {
         petNameText = findViewById(R.id.petNameText);
         petBreedText = findViewById(R.id.petBreedText);
         petTipText = findViewById(R.id.petTipText);
+        heatTrackerCard = findViewById(R.id.heatTrackerCard);
+        galleryCard = findViewById(R.id.galleryCard);
 
         // Set a random pet care tip
         petTipText.setText(getRandomPetCareTip());
@@ -73,6 +77,13 @@ public class HomePageActivity extends AppCompatActivity {
         petViewModel.getPetById(currentPetId).observe(this, pet -> {
             if (pet != null) {
                 updatePetInfo(pet);
+
+                // Show/hide Heat Tracker based on gender
+                if (pet.getGender() != null && pet.getGender().equals("Female")) {
+                    heatTrackerCard.setVisibility(View.VISIBLE);
+                } else {
+                    heatTrackerCard.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -83,32 +94,51 @@ public class HomePageActivity extends AppCompatActivity {
     private void updatePetInfo(Pet pet) {
         petNameText.setText(pet.getName());
 
-        // Format breed and age
-        String breedAge = "";
+        // Format breed, gender and age
+        String breedGenderAge = "";
         if (pet.getBreed() != null && !pet.getBreed().isEmpty()) {
-            breedAge = pet.getBreed();
+            breedGenderAge = pet.getBreed();
         }
 
+        // Add gender if available
+        if (pet.getGender() != null && !pet.getGender().isEmpty()) {
+            if (!breedGenderAge.isEmpty()) {
+                breedGenderAge += " • ";
+            }
+            breedGenderAge += pet.getGender();
+
+            // Show/hide Heat Tracker based on gender
+            if (pet.getGender().equals("Female")) {
+                heatTrackerCard.setVisibility(View.VISIBLE);
+            } else {
+                heatTrackerCard.setVisibility(View.GONE);
+            }
+        } else {
+            // Default to hiding heat tracker if gender is not specified
+            heatTrackerCard.setVisibility(View.GONE);
+        }
+
+        // Add age
         if (pet.getBirthDate() != null) {
             long ageInMillis = System.currentTimeMillis() - pet.getBirthDate().getTime();
             long ageInDays = ageInMillis / (1000 * 60 * 60 * 24);
 
-            if (!breedAge.isEmpty()) {
-                breedAge += " • ";
+            if (!breedGenderAge.isEmpty()) {
+                breedGenderAge += " • ";
             }
 
             if (ageInDays < 30) {
-                breedAge += ageInDays + " days";
+                breedGenderAge += ageInDays + " days";
             } else if (ageInDays < 365) {
                 int months = (int) (ageInDays / 30);
-                breedAge += months + (months == 1 ? " month" : " months");
+                breedGenderAge += months + (months == 1 ? " month" : " months");
             } else {
                 int years = (int) (ageInDays / 365);
-                breedAge += years + (years == 1 ? " year" : " years");
+                breedGenderAge += years + (years == 1 ? " year" : " years");
             }
         }
 
-        petBreedText.setText(breedAge);
+        petBreedText.setText(breedGenderAge);
 
         // Load pet image if available
         if (pet.getProfilePicture() != null && !pet.getProfilePicture().isEmpty()) {
@@ -151,7 +181,6 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
-        MaterialCardView heatTrackerCard = findViewById(R.id.heatTrackerCard);
         heatTrackerCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,7 +200,6 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
-        MaterialCardView galleryCard = findViewById(R.id.galleryCard);
         galleryCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

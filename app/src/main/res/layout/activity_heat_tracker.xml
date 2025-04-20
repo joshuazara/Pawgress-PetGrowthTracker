@@ -79,7 +79,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
-
+            <!-- Pet Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/petInfoCard"
                 android:layout_width="match_parent"
@@ -136,7 +136,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
+            <!-- Current Status Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/currentStatusCard"
                 android:layout_width="match_parent"
@@ -242,60 +242,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/heatCycleGraphCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@drawable/card_gradient_bg">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Heat Cycle Pattern"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <FrameLayout
-                        android:id="@+id/chartContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:background="@drawable/chart_placeholder_bg" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Average Cycle: 6 months"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Average Duration: 21 days"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-
+            <!-- Heat Cycle History Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/heatCycleHistoryCard"
                 android:layout_width="match_parent"
@@ -320,188 +267,11 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
 
-
-                    <com.google.android.material.card.MaterialCardView
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/heatCycleHistoryRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E0E0E0"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:id="@+id/cycle1StartDate"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="January 15, 2025"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentStart="true" />
-
-                                <TextView
-                                    android:id="@+id/cycle1Duration"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="21 days"
-                                    android:textColor="@color/brand_green"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentEnd="true" />
-                            </RelativeLayout>
-
-                            <TextView
-                                android:id="@+id/cycle1EndDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="End: February 5, 2025"
-                                android:textColor="@color/gray_600"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-
-                            <TextView
-                                android:id="@+id/cycle1Notes"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Normal heat cycle, no complications"
-                                android:textColor="@color/gray_500"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E0E0E0"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:id="@+id/cycle2StartDate"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="July 10, 2024"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentStart="true" />
-
-                                <TextView
-                                    android:id="@+id/cycle2Duration"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="19 days"
-                                    android:textColor="@color/brand_green"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentEnd="true" />
-                            </RelativeLayout>
-
-                            <TextView
-                                android:id="@+id/cycle2EndDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="End: July 29, 2024"
-                                android:textColor="@color/gray_600"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-
-                            <TextView
-                                android:id="@+id/cycle2Notes"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Slightly shorter cycle, minor bleeding"
-                                android:textColor="@color/gray_500"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E0E0E0"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:id="@+id/cycle3StartDate"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="January 8, 2024"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentStart="true" />
-
-                                <TextView
-                                    android:id="@+id/cycle3Duration"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="23 days"
-                                    android:textColor="@color/brand_green"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentEnd="true" />
-                            </RelativeLayout>
-
-                            <TextView
-                                android:id="@+id/cycle3EndDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="End: January 31, 2024"
-                                android:textColor="@color/gray_600"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-
-                            <TextView
-                                android:id="@+id/cycle3Notes"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="First heat cycle, longer duration than usual"
-                                android:textColor="@color/gray_500"
-                                android:textSize="14sp"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
+                        android:nestedScrollingEnabled="false" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/viewAllCyclesButton"
@@ -525,7 +295,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-
+    <!-- Floating Action Button for adding heat cycles -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addHeatCycleFab"
         android:layout_width="wrap_content"
