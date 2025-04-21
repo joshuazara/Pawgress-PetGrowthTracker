@@ -6,10 +6,14 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,12 +25,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.taskperf1.database.GrowthEntry;
 import com.example.taskperf1.database.Pet;
 import com.example.taskperf1.viewmodels.GrowthEntryViewModel;
@@ -46,6 +54,7 @@ import java.util.Locale;
 
 public class ProfileSelectionActivity extends AppCompatActivity {
 
+    private static final String TAG = "ProfileSelectionActivity";
     private GrowthEntryViewModel growthEntryViewModel;
     private PetViewModel petViewModel;
     private LinearLayout petCardsContainer;
@@ -64,6 +73,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_selection);
+        Log.d(TAG, "Activity created");
 
         // Initialize ViewModels
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
@@ -142,10 +152,13 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                         .load(imageUri)
                         .placeholder(R.drawable.dogpic)
                         .error(R.drawable.dogpic)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
                         .centerCrop()
                         .into(profileImage);
             } catch (Exception e) {
                 // If there's an error, load a placeholder
+                Log.e(TAG, "Error loading pet image: " + e.getMessage());
                 profileImage.setImageResource(R.drawable.dogpic);
             }
         } else {
@@ -189,6 +202,9 @@ public class ProfileSelectionActivity extends AppCompatActivity {
 
         // Image selection components
         dialogPreviewImage = dialogView.findViewById(R.id.previewImage);
+        if (dialogPreviewImage == null) {
+            Log.e(TAG, "Failed to find preview image view");
+        }
         MaterialButton selectImageButton = dialogView.findViewById(R.id.selectImageButton);
 
         // Reset the temp path
@@ -254,7 +270,28 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             newPet.setName(nameInput.getText().toString().trim());
             newPet.setBreed(breedInput.getText().toString().trim());
             newPet.setGender(genderInput.getText().toString().trim());
-            newPet.setProfilePicture(tempSelectedImagePath);
+
+            // Add image handling with null check
+            if (tempSelectedImagePath != null && !tempSelectedImagePath.isEmpty()) {
+                try {
+                    // Validate that URI is accessible
+                    Uri testUri = Uri.parse(tempSelectedImagePath);
+                    try {
+                        // Just checking if we can access the URI
+                        getContentResolver().getType(testUri);
+                        newPet.setProfilePicture(tempSelectedImagePath);
+                    } catch (Exception e) {
+                        // If we can't resolve the URI, use default
+                        Log.e(TAG, "Error validating image URI: " + e.getMessage());
+                        tempSelectedImagePath = null;
+                        Toast.makeText(ProfileSelectionActivity.this, "Selected image not accessible, using default", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parsing URI: " + e.getMessage());
+                    tempSelectedImagePath = null;
+                }
+            }
+
             newPet.setCreatedAt(new Date()); // Set creation timestamp
             newPet.setUpdatedAt(new Date()); // Set update timestamp
 
@@ -275,6 +312,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 }
             } catch (NumberFormatException e) {
                 // Ignore if not a valid number
+                Log.w(TAG, "Invalid weight format: " + e.getMessage());
             }
 
             // Parse initial height
@@ -285,32 +323,53 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 }
             } catch (NumberFormatException e) {
                 // Ignore if not a valid number
+                Log.w(TAG, "Invalid height format: " + e.getMessage());
             }
 
-            // Save the new pet to the database - this will generate a petId
-            long petId = petViewModel.insertSync(newPet);
+            // Execute database operations on a background thread
+            new Thread(() -> {
+                try {
+                    // Save the new pet to the database - this will generate a petId
+                    long petId = petViewModel.insertSync(newPet);
 
-            // Check if petId was generated correctly
-            if (petId > 0) {
-                // Create an initial growth entry if weight is provided
-                if (newPet.getInitialWeight() > 0) {
-                    GrowthEntry initialGrowth = new GrowthEntry();
-                    initialGrowth.setPetId((int)petId);
-                    initialGrowth.setEntryDate(newPet.getBirthDate());
-                    initialGrowth.setWeight(newPet.getInitialWeight());
-                    initialGrowth.setHeight(newPet.getInitialHeight());
-                    initialGrowth.setLength(0); // Default value
-                    initialGrowth.setCreatedAt(new Date());
-                    initialGrowth.setNotes("Initial measurement");
+                    // Check if petId was generated correctly
+                    if (petId > 0) {
+                        // Create an initial growth entry if weight is provided
+                        if (newPet.getInitialWeight() > 0) {
+                            try {
+                                GrowthEntry initialGrowth = new GrowthEntry();
+                                initialGrowth.setPetId((int)petId);
+                                initialGrowth.setEntryDate(newPet.getBirthDate());
+                                initialGrowth.setWeight(newPet.getInitialWeight());
+                                initialGrowth.setHeight(newPet.getInitialHeight());
+                                initialGrowth.setLength(0); // Default value
+                                initialGrowth.setCreatedAt(new Date());
+                                initialGrowth.setNotes("Initial measurement");
 
-                    growthEntryViewModel.insert(initialGrowth);
+                                growthEntryViewModel.insert(initialGrowth);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error creating growth entry: " + e.getMessage());
+                                // Continue anyway since the pet was created
+                            }
+                        }
+
+                        // Update UI on the main thread
+                        runOnUiThread(() -> {
+                            Toast.makeText(ProfileSelectionActivity.this, "Pet added successfully", Toast.LENGTH_SHORT).show();
+                            addDialog.dismiss();
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            Toast.makeText(ProfileSelectionActivity.this, "Error adding pet", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error saving pet: " + e.getMessage());
+                    runOnUiThread(() -> {
+                        Toast.makeText(ProfileSelectionActivity.this, "Error saving pet: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
                 }
-
-                Toast.makeText(ProfileSelectionActivity.this, "Pet added successfully", Toast.LENGTH_SHORT).show();
-                addDialog.dismiss();
-            } else {
-                Toast.makeText(ProfileSelectionActivity.this, "Error adding pet", Toast.LENGTH_SHORT).show();
-            }
+            }).start();
         });
 
         // Show the dialog
@@ -321,7 +380,11 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         // Inflate the dialog layout
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_pet, null);
 
-        // Get references to the input fields
+        // Delete button setup
+        ImageButton deleteButton = dialogView.findViewById(R.id.deleteButton);
+        deleteButton.setVisibility(View.VISIBLE);
+
+        // Get references to input fields
         TextInputEditText nameInput = dialogView.findViewById(R.id.nameInput);
         TextInputEditText breedInput = dialogView.findViewById(R.id.breedInput);
         TextInputEditText birthDateInput = dialogView.findViewById(R.id.birthDateInput);
@@ -333,50 +396,53 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, genderOptions);
         genderInput.setAdapter(adapter);
-
-        // Select current gender or default to Male
         if (pet.getGender() != null && !pet.getGender().isEmpty()) {
             genderInput.setText(pet.getGender(), false);
         } else {
             genderInput.setText(genderOptions[0], false);
         }
 
-        // Image selection components
+        // Image components
         dialogPreviewImage = dialogView.findViewById(R.id.previewImage);
         MaterialButton selectImageButton = dialogView.findViewById(R.id.selectImageButton);
 
-        // Initialize temp path with the current pet's image path
+        // Initialize temp path with existing image path
         tempSelectedImagePath = pet.getProfilePicture();
 
         // Fill the fields with existing pet data
         nameInput.setText(pet.getName());
         breedInput.setText(pet.getBreed());
-
         if (pet.getBirthDate() != null) {
             birthDateInput.setText(dateFormat.format(pet.getBirthDate()));
         }
-
         if (pet.getInitialWeight() > 0) {
             weightInput.setText(String.valueOf(pet.getInitialWeight()));
         }
-
         if (pet.getInitialHeight() > 0) {
             heightInput.setText(String.valueOf(pet.getInitialHeight()));
         }
 
-        // Load existing image if available
+        // Load existing image if available - THIS IS KEY
         if (pet.getProfilePicture() != null && !pet.getProfilePicture().isEmpty()) {
             try {
                 Uri imageUri = Uri.parse(pet.getProfilePicture());
+
+                // Use the same approach that works in the profile display
                 Glide.with(this)
                         .load(imageUri)
-                        .placeholder(R.drawable.dogpic)
-                        .error(R.drawable.dogpic)
-                        .centerCrop()
-                        .into(dialogPreviewImage);
+                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Important
+                        .skipMemoryCache(true) // Important
+                        .placeholder(R.drawable.blankprofilepic)
+                        .error(R.drawable.blankprofilepic)
+                        .into(new SimpleTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                dialogPreviewImage.setImageDrawable(resource);
+                            }
+                        });
             } catch (Exception e) {
-                // If there's an error, load a placeholder
-                dialogPreviewImage.setImageResource(R.drawable.dogpic);
+                Log.e(TAG, "Error loading pet image in dialog: " + e.getMessage());
+                dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
             }
         }
 
@@ -395,42 +461,48 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             showDatePickerDialog(birthDateInput);
         });
 
-        // Create the custom dialog
+        // Create the dialog
         androidx.appcompat.app.AlertDialog editDialog = new MaterialAlertDialogBuilder(this, R.style.DialogTheme)
-                .setTitle("Edit Pet")
                 .setView(dialogView)
                 .create();
-
-        // Set background for rounded corners
         if (editDialog.getWindow() != null) {
             editDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
         }
 
-        // Add custom buttons to the dialog view
-        MaterialButton positiveButton = dialogView.findViewById(R.id.saveButton);
-        MaterialButton negativeButton = dialogView.findViewById(R.id.cancelButton);
-        LinearLayout buttonContainer = dialogView.findViewById(R.id.buttonContainer);
+        // Set button click listeners
+        MaterialButton cancelButton = dialogView.findViewById(R.id.cancelButton);
+        MaterialButton saveButton = dialogView.findViewById(R.id.saveButton);
 
-        // Add a delete button
-        MaterialButton deleteButton = new MaterialButton(this, null);
-        deleteButton.setText("Delete");
-        deleteButton.setTextColor(getResources().getColor(R.color.red));
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        params.setMargins(0, 0, 8, 0);
-        deleteButton.setLayoutParams(params);
-        buttonContainer.addView(deleteButton, 0); // Add as first child
+        cancelButton.setOnClickListener(v -> editDialog.dismiss());
 
-        // Adjust the other buttons' margins
-        ((LinearLayout.LayoutParams) negativeButton.getLayoutParams()).setMargins(8, 0, 8, 0);
-
-        // Set click listeners for the buttons
-        negativeButton.setOnClickListener(v -> {
-            editDialog.dismiss();
+        deleteButton.setOnClickListener(v -> {
+            // Confirm deletion
+            new MaterialAlertDialogBuilder(ProfileSelectionActivity.this)
+                    .setTitle("Delete Pet")
+                    .setMessage("Are you sure you want to delete " + pet.getName() + "?")
+                    .setPositiveButton("Delete", (dialogInterface, i) -> {
+                        // Run database operation on background thread
+                        new Thread(() -> {
+                            try {
+                                petViewModel.delete(pet);
+                                runOnUiThread(() -> {
+                                    Toast.makeText(ProfileSelectionActivity.this, "Pet deleted", Toast.LENGTH_SHORT).show();
+                                    editDialog.dismiss();
+                                });
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error deleting pet: " + e.getMessage());
+                                runOnUiThread(() -> {
+                                    Toast.makeText(ProfileSelectionActivity.this, "Error deleting pet", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }).start();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
-        positiveButton.setOnClickListener(v -> {
-            // Validate inputs
+        saveButton.setOnClickListener(v -> {
+            // Validation code
             if (nameInput.getText() == null || nameInput.getText().toString().trim().isEmpty()) {
                 Toast.makeText(ProfileSelectionActivity.this, "Please enter a name", Toast.LENGTH_SHORT).show();
                 return;
@@ -447,60 +519,71 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 return;
             }
 
-            // Update the pet with new values
-            pet.setName(nameInput.getText().toString().trim());
-            pet.setBreed(breedInput.getText().toString().trim());
-            pet.setGender(genderInput.getText().toString().trim());
-            pet.setProfilePicture(tempSelectedImagePath);
-            pet.setUpdatedAt(new Date());
-
-            // Parse birth date
             try {
+                // Parse birth date
                 String birthDateStr = birthDateInput.getText().toString().trim();
-                pet.setBirthDate(dateFormat.parse(birthDateStr));
+                Date birthDate = dateFormat.parse(birthDateStr);
+
+                // Create a copy of the pet to modify
+                Pet updatedPet = new Pet();
+                updatedPet.setPetId(pet.getPetId());
+                updatedPet.setName(nameInput.getText().toString().trim());
+                updatedPet.setBreed(breedInput.getText().toString().trim());
+                updatedPet.setGender(genderInput.getText().toString().trim());
+                updatedPet.setBirthDate(birthDate);
+                updatedPet.setUpdatedAt(new Date());
+                updatedPet.setProfilePicture(tempSelectedImagePath);
+
+                // Parse weight
+                try {
+                    String weightStr = weightInput.getText().toString().trim();
+                    if (!weightStr.isEmpty()) {
+                        updatedPet.setInitialWeight(Float.parseFloat(weightStr));
+                    } else {
+                        updatedPet.setInitialWeight(pet.getInitialWeight());
+                    }
+                } catch (NumberFormatException e) {
+                    updatedPet.setInitialWeight(pet.getInitialWeight());
+                }
+
+                // Parse height
+                try {
+                    String heightStr = heightInput.getText().toString().trim();
+                    if (!heightStr.isEmpty()) {
+                        updatedPet.setInitialHeight(Float.parseFloat(heightStr));
+                    } else {
+                        updatedPet.setInitialHeight(pet.getInitialHeight());
+                    }
+                } catch (NumberFormatException e) {
+                    updatedPet.setInitialHeight(pet.getInitialHeight());
+                }
+
+                // Copy other values that might not be in the form
+                updatedPet.setInitialLength(pet.getInitialLength());
+                updatedPet.setCreatedAt(pet.getCreatedAt());
+
+                // Save to database on a background thread
+                new Thread(() -> {
+                    try {
+                        petViewModel.update(updatedPet);
+                        runOnUiThread(() -> {
+                            Toast.makeText(ProfileSelectionActivity.this, "Pet updated successfully", Toast.LENGTH_SHORT).show();
+                            editDialog.dismiss();
+                        });
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error updating pet: " + e.getMessage());
+                        runOnUiThread(() -> {
+                            Toast.makeText(ProfileSelectionActivity.this, "Error updating pet: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }).start();
+
             } catch (ParseException e) {
                 Toast.makeText(ProfileSelectionActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
-                return;
+            } catch (Exception e) {
+                Log.e(TAG, "Error preparing pet update: " + e.getMessage());
+                Toast.makeText(ProfileSelectionActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
-            // Parse weight
-            try {
-                String weightStr = weightInput.getText().toString().trim();
-                if (!weightStr.isEmpty()) {
-                    pet.setInitialWeight(Float.parseFloat(weightStr));
-                }
-            } catch (NumberFormatException e) {
-                // Ignore if not a valid number
-            }
-
-            // Parse height
-            try {
-                String heightStr = heightInput.getText().toString().trim();
-                if (!heightStr.isEmpty()) {
-                    pet.setInitialHeight(Float.parseFloat(heightStr));
-                }
-            } catch (NumberFormatException e) {
-                // Ignore if not a valid number
-            }
-
-            // Save the updated pet to the database
-            petViewModel.update(pet);
-            Toast.makeText(ProfileSelectionActivity.this, "Pet updated successfully", Toast.LENGTH_SHORT).show();
-            editDialog.dismiss();
-        });
-
-        deleteButton.setOnClickListener(v -> {
-            // Confirm deletion
-            new MaterialAlertDialogBuilder(ProfileSelectionActivity.this)
-                    .setTitle("Delete Pet")
-                    .setMessage("Are you sure you want to delete " + pet.getName() + "?")
-                    .setPositiveButton("Delete", (dialogInterface, i) -> {
-                        petViewModel.delete(pet);
-                        Toast.makeText(ProfileSelectionActivity.this, "Pet deleted", Toast.LENGTH_SHORT).show();
-                        editDialog.dismiss();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
         });
 
         // Show the dialog
@@ -519,6 +602,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             }
         } catch (ParseException e) {
             // Use current date if parsing fails
+            Log.w(TAG, "Error parsing existing date: " + e.getMessage());
         }
 
         int year = calendar.get(Calendar.YEAR);
@@ -551,28 +635,85 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK && data != null) {
-            Uri selectedImage = data.getData();
+            try {
+                Uri selectedImage = data.getData();
+                if (selectedImage != null) {
+                    Log.d(TAG, "Selected image URI: " + selectedImage);
 
-            // For Android 10+ (API 29+), persist permissions
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
-                    getContentResolver().takePersistableUriPermission(selectedImage, takeFlags);
-                } catch (SecurityException e) {
-                    // Handle exception
+                    // Save URI regardless of display success
+                    tempSelectedImagePath = selectedImage.toString();
+
+                    if (dialogPreviewImage != null) {
+                        try {
+                            // For Android 10+ (API 29+), persist permissions
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                try {
+                                    final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                                    getContentResolver().takePersistableUriPermission(selectedImage, takeFlags);
+                                } catch (SecurityException e) {
+                                    Log.e(TAG, "Failed to get persistent permission: " + e.getMessage());
+                                }
+                            }
+
+                            // Use Glide with SimpleTarget to ensure callback after loading
+                            Glide.with(this)
+                                    .load(selectedImage)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(new SimpleTarget<Drawable>() {
+                                        @Override
+                                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                            // This callback ensures the image is loaded before setting it
+                                            dialogPreviewImage.setImageDrawable(resource);
+                                            Log.d(TAG, "Image successfully loaded into preview");
+                                        }
+
+                                        @Override
+                                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                            super.onLoadFailed(errorDrawable);
+                                            Log.e(TAG, "Failed to load image into preview");
+                                            dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
+                                        }
+                                    });
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error loading image: " + e.getMessage());
+                            dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
+                        }
+                    } else {
+                        Log.e(TAG, "dialogPreviewImage is null");
+                    }
                 }
+            } catch (Exception e) {
+                Log.e(TAG, "Error in onActivityResult: " + e.getMessage());
             }
+        }
+    }
 
-            // Store the image URI as a string
-            tempSelectedImagePath = selectedImage.toString();
+    // Improved and simplified image loading method
+    private void loadImageIntoPreview(Uri imageUri, ShapeableImageView imageView) {
+        if (imageUri == null || imageView == null) {
+            Log.e(TAG, "Cannot load image: URI or ImageView is null");
+            return;
+        }
 
-            // Update preview image if it exists
-            if (dialogPreviewImage != null) {
-                Glide.with(this)
-                        .load(selectedImage)
-                        .centerCrop()
-                        .into(dialogPreviewImage);
-            }
+        try {
+            // Clear any previous image first
+            imageView.setImageBitmap(null);
+
+            // Load the image
+            Glide.with(getApplicationContext())
+                    .load(imageUri)
+                    .placeholder(R.drawable.blankprofilepic)
+                    .error(R.drawable.blankprofilepic)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .centerCrop()
+                    .into(imageView);
+
+            Log.d(TAG, "Image loaded successfully into preview");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in loadImageIntoPreview: " + e.getMessage());
+            imageView.setImageResource(R.drawable.blankprofilepic);
         }
     }
 

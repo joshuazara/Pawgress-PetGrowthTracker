@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -354,27 +355,40 @@ public class VaccineTrackerActivity extends AppCompatActivity {
     }
 
     private void showDatePickerDialog(final TextInputEditText dateField, final Calendar calendar) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        calendar.set(year, month, dayOfMonth);
-                        dateField.setText(inputDateFormat.format(calendar.getTime()));
-                    }
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
+        try {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    this,
+                    (view, year, month, dayOfMonth) -> {
+                        try {
+                            calendar.set(year, month, dayOfMonth);
+                            dateField.setText(inputDateFormat.format(calendar.getTime()));
+                        } catch (Exception e) {
+                            Log.e("VaccineTracker", "Error setting date: " + e.getMessage());
+                            Toast.makeText(this, "Error setting date", Toast.LENGTH_SHORT).show();
+                        }
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
 
-        // Style the date picker dialog buttons
-        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
-                .setTextColor(ContextCompat.getColor(this, R.color.brand_green));
-        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE)
-                .setTextColor(ContextCompat.getColor(this, R.color.gray_600));
+            // Style the date picker dialog buttons
+            datePickerDialog.setOnShowListener(dialog -> {
+                try {
+                    datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
+                            .setTextColor(ContextCompat.getColor(this, R.color.brand_green));
+                    datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE)
+                            .setTextColor(ContextCompat.getColor(this, R.color.gray_600));
+                } catch (Exception e) {
+                    Log.e("VaccineTracker", "Error styling dialog buttons: " + e.getMessage());
+                }
+            });
 
-        datePickerDialog.show();
+            datePickerDialog.show();
+        } catch (Exception e) {
+            Log.e("VaccineTracker", "Error showing date picker: " + e.getMessage());
+            Toast.makeText(this, "Error showing date picker", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean validateInputs(TextInputEditText vaccineTypeInput, TextInputEditText dateInput,
