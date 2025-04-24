@@ -56,6 +56,7 @@ public class GalleryActivity extends AppCompatActivity {
                 Intent intent = new Intent(GalleryActivity.this, CameraActivity.class);
                 intent.putExtra("pet_id", petId);
                 startActivity(intent);
+                finish();
             }
         });
 

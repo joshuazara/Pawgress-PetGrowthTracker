@@ -28,7 +28,7 @@
             app:shapeAppearanceOverlay="@style/CircularImageView"
             app:strokeColor="#69D16C"
             app:strokeWidth="2dp"
-            android:src="@drawable/dogpic" />
+             />
 
         <TextView
             android:id="@+id/profileName"

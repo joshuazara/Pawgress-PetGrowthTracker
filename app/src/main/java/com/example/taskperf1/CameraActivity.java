@@ -95,6 +95,7 @@ public class CameraActivity extends AppCompatActivity {
                 Intent intent = new Intent(CameraActivity.this, GalleryActivity.class);
                 intent.putExtra("pet_id", petId);
                 startActivity(intent);
+                finish();
             }
         });
     }

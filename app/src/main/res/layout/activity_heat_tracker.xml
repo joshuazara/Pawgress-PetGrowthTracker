@@ -65,12 +65,53 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Empty State View - Shown when no data exists -->
+    <LinearLayout
+        android:id="@+id/emptyStateContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_heat"
+            app:tint="@color/gray_400"
+            android:alpha="0.5"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Heat Cycles Yet"
+            android:textColor="@color/gray_600"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add your first heat cycle by tapping the + button"
+            android:textColor="@color/gray_500"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+    <!-- Content Container - Shown when data exists -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/contentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
+        android:visibility="gone"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -104,7 +145,7 @@
                         app:shapeAppearanceOverlay="@style/CircularImageView"
                         app:strokeColor="@color/brand_green"
                         app:strokeWidth="2dp"
-                        android:src="@drawable/dogpic" />
+                         />
 
                     <TextView
                         android:id="@+id/petName"
@@ -151,6 +192,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Calendar section title -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -160,61 +202,52 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp" />
 
-                    <!-- Month title with nav buttons -->
-
-
-                    <!-- Calendar Legend -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Heat Start"
-                            android:drawablePadding="4dp"
-                            android:textSize="12sp"
-                            app:drawableStartCompat="@drawable/circle_red"
-                            android:gravity="center_vertical" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Fertile"
-                            android:drawablePadding="4dp"
-                            android:textSize="12sp"
-                            app:drawableStartCompat="@drawable/circle_purple"
-                            android:gravity="center_vertical" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Predicted"
-                            android:drawablePadding="4dp"
-                            android:textSize="12sp"
-                            app:drawableStartCompat="@drawable/circle_orange"
-                            android:gravity="center_vertical" />
-                    </LinearLayout>
-
                     <CalendarView
                         android:id="@+id/calendarView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:layout_constraintTop_toBottomOf="@+id/dogImage"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Current Status Card -->
+            <!-- Current Cycle Events Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/currentCycleEventsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Current Cycle Events"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Container for dynamically added event indicators -->
+                    <LinearLayout
+                        android:id="@+id/upcomingEventsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:animateLayoutChanges="true" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Heat Cycle Information Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/currentStatusCard"
                 android:layout_width="match_parent"
@@ -232,7 +265,7 @@
                         android:id="@+id/currentStatusTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Current Status"
+                        android:text="Heat Cycle Information"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -244,7 +277,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Next Heat Cycle"
+                        android:text="Next Heat Cycle Range"
                         android:textColor="@color/gray_600"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -267,7 +300,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="23 days from now"
+                        android:text="23 days from now (approximate)"
                         android:textColor="@color/brand_green"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="@id/nextHeatDate"

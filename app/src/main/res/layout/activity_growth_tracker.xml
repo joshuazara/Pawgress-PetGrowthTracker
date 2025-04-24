@@ -104,7 +104,7 @@
                         app:shapeAppearanceOverlay="@style/CircularImageView"
                         app:strokeColor="@color/brand_green"
                         app:strokeWidth="2dp"
-                        android:src="@drawable/dogpic" />
+                         />
 
                     <TextView
                         android:id="@+id/petName"

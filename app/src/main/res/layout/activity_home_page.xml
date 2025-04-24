@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="210dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/dogpic"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <!-- Pet Info Card - Positioned to slightly intersect -->
