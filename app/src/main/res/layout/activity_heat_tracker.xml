@@ -136,6 +136,84 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Calendar Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/calendarCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Heat Cycle Calendar"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Month title with nav buttons -->
+
+
+                    <!-- Calendar Legend -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Heat Start"
+                            android:drawablePadding="4dp"
+                            android:textSize="12sp"
+                            app:drawableStartCompat="@drawable/circle_red"
+                            android:gravity="center_vertical" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Fertile"
+                            android:drawablePadding="4dp"
+                            android:textSize="12sp"
+                            app:drawableStartCompat="@drawable/circle_purple"
+                            android:gravity="center_vertical" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Predicted"
+                            android:drawablePadding="4dp"
+                            android:textSize="12sp"
+                            app:drawableStartCompat="@drawable/circle_orange"
+                            android:gravity="center_vertical" />
+                    </LinearLayout>
+
+                    <CalendarView
+                        android:id="@+id/calendarView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        app:layout_constraintTop_toBottomOf="@+id/dogImage"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Current Status Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/currentStatusCard"
@@ -195,6 +273,34 @@
                         app:layout_constraintStart_toStartOf="@id/nextHeatDate"
                         app:layout_constraintTop_toBottomOf="@id/nextHeatDate" />
 
+                    <LinearLayout
+                        android:id="@+id/fertileWindowIndicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/fertile_window_background"
+                        android:padding="12dp"
+                        app:layout_constraintTop_toBottomOf="@id/daysUntilNextHeat">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Predicted Fertile Window"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="14sp"/>
+
+                        <TextView
+                            android:id="@+id/fertileWindowDates"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="April 24 - April 29, 2025"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+
                     <View
                         android:id="@+id/divider"
                         android:layout_width="match_parent"
@@ -202,7 +308,7 @@
                         android:layout_marginTop="16dp"
                         android:background="@color/gray_400"
                         android:alpha="0.3"
-                        app:layout_constraintTop_toBottomOf="@id/daysUntilNextHeat" />
+                        app:layout_constraintTop_toBottomOf="@id/fertileWindowIndicator" />
 
                     <TextView
                         android:id="@+id/lastHeatLabel"

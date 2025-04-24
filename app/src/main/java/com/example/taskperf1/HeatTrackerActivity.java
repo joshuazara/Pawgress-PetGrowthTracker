@@ -3,22 +3,26 @@ package com.example.taskperf1;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,10 +34,10 @@ import com.example.taskperf1.database.Pet;
 import com.example.taskperf1.viewmodels.HeatCycleViewModel;
 import com.example.taskperf1.viewmodels.PetViewModel;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.ParseException;
@@ -46,23 +50,35 @@ import java.util.concurrent.TimeUnit;
 
 public class HeatTrackerActivity extends AppCompatActivity {
 
+    private static final String TAG = "HeatTrackerActivity";
+    private static final int AVERAGE_HEAT_CYCLE_DAYS = 180; // ~6 months between cycles
+    private static final int AVERAGE_HEAT_DURATION_DAYS = 21; // ~3 weeks duration
+    private static final int FERTILE_WINDOW_START_DAY = 9; // Day in cycle when fertility begins
+    private static final int FERTILE_WINDOW_DURATION_DAYS = 5; // Duration of fertile window
+
     private HeatCycleViewModel heatCycleViewModel;
     private PetViewModel petViewModel;
     private int currentPetId;
     private Pet currentPet;
-    private HeatCycleAdapter adapter;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+    private SimpleDateFormat inputDateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+    private SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
 
     // UI elements
+    private ShapeableImageView petImage;
     private TextView petName;
     private TextView petBreed;
-    private ShapeableImageView petImage;
     private TextView nextHeatDate;
     private TextView daysUntilNextHeat;
     private TextView lastHeatDate;
     private TextView lastHeatDuration;
-    private RecyclerView historyRecyclerView;
+    private RecyclerView heatCycleHistoryRecyclerView;
+    private HeatCycleAdapter adapter;
+    private TextView currentMonthTextView;
+    private MaterialCardView currentStatusCard;
+    private LinearLayout fertileWindowIndicator;
+    private TextView fertileWindowDates;
+    private LinearLayout upcomingEventsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +103,7 @@ public class HeatTrackerActivity extends AppCompatActivity {
         setupBackButton();
         setupAddHeatCycleButtons();
         setupViewAllButton();
+        setupCalendarView();
 
         // Load pet data
         loadPetData();
@@ -94,21 +111,28 @@ public class HeatTrackerActivity extends AppCompatActivity {
 
     private void initializeViews() {
         // Pet info views
+        petImage = findViewById(R.id.petImage);
         petName = findViewById(R.id.petName);
         petBreed = findViewById(R.id.petBreed);
-        petImage = findViewById(R.id.petImage);
 
-        // Heat cycle info views
+        // Status views
         nextHeatDate = findViewById(R.id.nextHeatDate);
         daysUntilNextHeat = findViewById(R.id.daysUntilNextHeat);
         lastHeatDate = findViewById(R.id.lastHeatDate);
         lastHeatDuration = findViewById(R.id.lastHeatDuration);
+        fertileWindowIndicator = findViewById(R.id.fertileWindowIndicator);
+        fertileWindowDates = findViewById(R.id.fertileWindowDates);
+        upcomingEventsContainer = findViewById(R.id.upcomingEventsContainer);
 
-        // Setup recycler view for heat cycle history
-        historyRecyclerView = findViewById(R.id.heatCycleHistoryRecyclerView);
+        // Other views
+        currentMonthTextView = findViewById(R.id.currentMonthText);
+        currentStatusCard = findViewById(R.id.currentStatusCard);
+
+        // History views
+        heatCycleHistoryRecyclerView = findViewById(R.id.heatCycleHistoryRecyclerView);
         adapter = new HeatCycleAdapter(this);
-        historyRecyclerView.setAdapter(adapter);
-        historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        heatCycleHistoryRecyclerView.setAdapter(adapter);
+        heatCycleHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void setupBackButton() {
@@ -133,6 +157,31 @@ public class HeatTrackerActivity extends AppCompatActivity {
             intent.putExtra("pet_id", currentPetId);
             startActivity(intent);
         });
+    }
+
+    private void setupCalendarView() {
+        // We'll use MaterialDatePicker for showing a calendar
+        MaterialButton calendarButton = findViewById(R.id.openCalendarButton);
+
+        calendarButton.setOnClickListener(v -> {
+            // Create a date picker builder
+            MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+            builder.setTitleText("Select Date");
+            builder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+
+            // Create and show the picker
+            MaterialDatePicker<Long> datePicker = builder.build();
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                // Handle the selected date
+                Date selectedDate = new Date(selection);
+                checkDateForHeatEvents(selectedDate);
+            });
+
+            datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+        });
+
+        // Set the current month text
+        currentMonthTextView.setText(monthYearFormat.format(new Date()));
     }
 
     private void loadPetData() {
@@ -201,44 +250,294 @@ public class HeatTrackerActivity extends AppCompatActivity {
 
     private void loadHeatCycles() {
         heatCycleViewModel.getHeatCyclesByPet(currentPetId).observe(this, heatCycles -> {
-            if (heatCycles != null && !heatCycles.isEmpty()) {
-                // Sort by date (latest first) if needed
+            if (heatCycles != null) {
+                // Sort by date (latest first)
                 heatCycles.sort((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate()));
 
                 // Update adapter with all heat cycles
                 adapter.setHeatCycles(heatCycles);
 
-                // Get the latest heat cycle
-                HeatCycle latestCycle = heatCycles.get(0);
-
-                // Update last heat cycle information
-                if (latestCycle.getStartDate() != null) {
-                    lastHeatDate.setText(displayDateFormat.format(latestCycle.getStartDate()));
-                }
-
-                lastHeatDuration.setText("Duration: " + latestCycle.getDuration() + " days");
-
-                // Calculate and set next estimated heat cycle
-                Calendar nextEstimatedHeat = Calendar.getInstance();
-                nextEstimatedHeat.setTime(latestCycle.getStartDate());
-                nextEstimatedHeat.add(Calendar.MONTH, 6); // Typically every 6 months
-
-                nextHeatDate.setText("Estimated: " + displayDateFormat.format(nextEstimatedHeat.getTime()));
-
-                // Calculate days until next heat
-                long daysUntil = getDaysUntil(nextEstimatedHeat.getTime());
-                daysUntilNextHeat.setText(daysUntil + " days from now");
-            } else {
-                // No heat cycles yet - show empty state
-                adapter.setHeatCycles(heatCycles);
-
-                // Set default text for no cycles
-                lastHeatDate.setText("No previous cycles");
-                lastHeatDuration.setText("Duration: N/A");
-                nextHeatDate.setText("Add a heat cycle to see predictions");
-                daysUntilNextHeat.setText("No data yet");
+                // Update status card and event indicators
+                updateStatusCard(heatCycles);
+                updateEventIndicators(heatCycles);
             }
         });
+    }
+
+    private void updateEventIndicators(List<HeatCycle> heatCycles) {
+        // Clear existing indicators
+        upcomingEventsContainer.removeAllViews();
+
+        if (heatCycles == null || heatCycles.isEmpty()) {
+            return;
+        }
+
+        // Get the latest heat cycle
+        HeatCycle latestCycle = heatCycles.get(0);
+
+        // Calculate and add next heat cycle
+        Calendar nextHeatCal = Calendar.getInstance();
+        nextHeatCal.setTime(latestCycle.getStartDate());
+        nextHeatCal.add(Calendar.DAY_OF_MONTH, AVERAGE_HEAT_CYCLE_DAYS);
+
+        addEventIndicator(upcomingEventsContainer, nextHeatCal.getTime(), "Next Heat Cycle", Color.RED);
+
+        // Add fertile window
+        Calendar fertileStartCal = Calendar.getInstance();
+        fertileStartCal.setTime(nextHeatCal.getTime());
+        fertileStartCal.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_START_DAY);
+
+        addEventIndicator(upcomingEventsContainer, fertileStartCal.getTime(), "Fertile Window Begins", Color.parseColor("#9966CC"));
+
+        // Add end of fertile window
+        Calendar fertileEndCal = Calendar.getInstance();
+        fertileEndCal.setTime(fertileStartCal.getTime());
+        fertileEndCal.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_DURATION_DAYS);
+
+        addEventIndicator(upcomingEventsContainer, fertileEndCal.getTime(), "Fertile Window Ends", Color.parseColor("#9966CC"));
+    }
+
+    private void addEventIndicator(LinearLayout container, Date date, String label, int color) {
+        // Create a horizontal layout
+        LinearLayout indicatorLayout = new LinearLayout(this);
+        indicatorLayout.setOrientation(LinearLayout.HORIZONTAL);
+        indicatorLayout.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(0, 8, 0, 8);
+        indicatorLayout.setLayoutParams(layoutParams);
+
+        // Add colored dot
+        View dot = new View(this);
+        int dotSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
+        LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dotSize, dotSize);
+        dotParams.rightMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+        dot.setLayoutParams(dotParams);
+
+        GradientDrawable dotDrawable = new GradientDrawable();
+        dotDrawable.setShape(GradientDrawable.OVAL);
+        dotDrawable.setColor(color);
+        dot.setBackground(dotDrawable);
+
+        // Add date and label
+        TextView eventText = new TextView(this);
+        eventText.setText(dateFormatter.format(date) + " - " + label);
+        eventText.setTextColor(getResources().getColor(R.color.gray_600));
+
+        // Add to container
+        indicatorLayout.addView(dot);
+        indicatorLayout.addView(eventText);
+        container.addView(indicatorLayout);
+    }
+
+    private void updateStatusCard(List<HeatCycle> heatCycles) {
+        if (heatCycles == null || heatCycles.isEmpty()) {
+            // No cycles yet - show default message
+            lastHeatDate.setText("No previous cycles");
+            lastHeatDuration.setText("Duration: N/A");
+            nextHeatDate.setText("Add a heat cycle to see predictions");
+            daysUntilNextHeat.setText("No data yet");
+            fertileWindowIndicator.setVisibility(View.GONE);
+            return;
+        }
+
+        // Get the latest heat cycle
+        HeatCycle latestCycle = heatCycles.get(0);
+
+        // Update last heat info
+        lastHeatDate.setText(dateFormatter.format(latestCycle.getStartDate()));
+
+        // Calculate cycle duration
+        int duration = latestCycle.getDuration();
+        if (duration <= 0 && latestCycle.getEndDate() != null) {
+            // Calculate duration from start and end dates
+            long diffInMillis = latestCycle.getEndDate().getTime() - latestCycle.getStartDate().getTime();
+            duration = (int) TimeUnit.DAYS.convert(diffInMillis, TimeUnit.MILLISECONDS);
+        } else if (duration <= 0) {
+            duration = AVERAGE_HEAT_DURATION_DAYS; // Default duration
+        }
+        lastHeatDuration.setText("Duration: " + duration + " days");
+
+        // Calculate and set next estimated heat cycle
+        Calendar nextHeatCal = Calendar.getInstance();
+        nextHeatCal.setTime(latestCycle.getStartDate());
+        nextHeatCal.add(Calendar.DAY_OF_MONTH, AVERAGE_HEAT_CYCLE_DAYS);
+
+        nextHeatDate.setText("Estimated: " + dateFormatter.format(nextHeatCal.getTime()));
+
+        // Calculate days until next heat
+        long daysUntil = getDaysUntil(nextHeatCal.getTime());
+        daysUntilNextHeat.setText(daysUntil + " days from now");
+
+        // Set text color based on urgency
+        if (daysUntil <= 30) {
+            daysUntilNextHeat.setTextColor(ContextCompat.getColor(this, R.color.red));
+        } else if (daysUntil <= 60) {
+            daysUntilNextHeat.setTextColor(Color.parseColor("#FF9800")); // Orange
+        } else {
+            daysUntilNextHeat.setTextColor(ContextCompat.getColor(this, R.color.brand_green));
+        }
+
+        // Update fertile window info
+        Calendar fertileStartCal = Calendar.getInstance();
+        fertileStartCal.setTime(nextHeatCal.getTime());
+        fertileStartCal.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_START_DAY);
+
+        Calendar fertileEndCal = Calendar.getInstance();
+        fertileEndCal.setTime(fertileStartCal.getTime());
+        fertileEndCal.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_DURATION_DAYS - 1);
+
+        fertileWindowDates.setText(
+                dateFormatter.format(fertileStartCal.getTime()) + " - " +
+                        dateFormatter.format(fertileEndCal.getTime())
+        );
+
+        // Show fertile window info if we're close to or in a heat cycle
+        if (daysUntil <= 60) {
+            fertileWindowIndicator.setVisibility(View.VISIBLE);
+        } else {
+            fertileWindowIndicator.setVisibility(View.GONE);
+        }
+    }
+
+    private void checkDateForHeatEvents(Date selectedDate) {
+        // Format the date for display
+        String formattedDate = dateFormatter.format(selectedDate);
+
+        // Check if this date matches any heat cycle events
+        boolean isHeatStart = false;
+        boolean isHeatEnd = false;
+        boolean isFertileWindow = false;
+        boolean isPredicted = false;
+
+        // Get all heat cycles from adapter
+        List<HeatCycle> cycles = adapter.getHeatCycles();
+        if (cycles == null || cycles.isEmpty()) {
+            Toast.makeText(this, "No heat cycles found for this date", Toast.LENGTH_SHORT).show();
+            return; // No cycles to check
+        }
+
+        Calendar selectedCal = Calendar.getInstance();
+        selectedCal.setTime(selectedDate);
+        selectedCal.set(Calendar.HOUR_OF_DAY, 0);
+        selectedCal.set(Calendar.MINUTE, 0);
+        selectedCal.set(Calendar.SECOND, 0);
+        selectedCal.set(Calendar.MILLISECOND, 0);
+
+        // Check for heat cycle events
+        for (HeatCycle cycle : cycles) {
+            // Check if it's a heat start date
+            Calendar startCal = Calendar.getInstance();
+            startCal.setTime(cycle.getStartDate());
+            startCal.set(Calendar.HOUR_OF_DAY, 0);
+            startCal.set(Calendar.MINUTE, 0);
+            startCal.set(Calendar.SECOND, 0);
+            startCal.set(Calendar.MILLISECOND, 0);
+
+            if (startCal.getTimeInMillis() == selectedCal.getTimeInMillis()) {
+                isHeatStart = true;
+            }
+
+            // Check if it's a heat end date
+            if (cycle.getEndDate() != null) {
+                Calendar endCal = Calendar.getInstance();
+                endCal.setTime(cycle.getEndDate());
+                endCal.set(Calendar.HOUR_OF_DAY, 0);
+                endCal.set(Calendar.MINUTE, 0);
+                endCal.set(Calendar.SECOND, 0);
+                endCal.set(Calendar.MILLISECOND, 0);
+
+                if (endCal.getTimeInMillis() == selectedCal.getTimeInMillis()) {
+                    isHeatEnd = true;
+                }
+            }
+
+            // Check if it's in fertile window
+            Calendar fertileStart = Calendar.getInstance();
+            fertileStart.setTime(cycle.getStartDate());
+            fertileStart.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_START_DAY);
+
+            Calendar fertileEnd = Calendar.getInstance();
+            fertileEnd.setTime(fertileStart.getTime());
+            fertileEnd.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_DURATION_DAYS - 1);
+
+            if (selectedCal.getTimeInMillis() >= fertileStart.getTimeInMillis() &&
+                    selectedCal.getTimeInMillis() <= fertileEnd.getTimeInMillis()) {
+                isFertileWindow = true;
+            }
+        }
+
+        // Check if it's a predicted heat date or fertile window
+        if (!cycles.isEmpty()) {
+            HeatCycle latestCycle = cycles.get(0);
+
+            // Predicted next heat start
+            Calendar nextHeatCal = Calendar.getInstance();
+            nextHeatCal.setTime(latestCycle.getStartDate());
+            nextHeatCal.add(Calendar.DAY_OF_MONTH, AVERAGE_HEAT_CYCLE_DAYS);
+            nextHeatCal.set(Calendar.HOUR_OF_DAY, 0);
+            nextHeatCal.set(Calendar.MINUTE, 0);
+            nextHeatCal.set(Calendar.SECOND, 0);
+            nextHeatCal.set(Calendar.MILLISECOND, 0);
+
+            if (nextHeatCal.getTimeInMillis() == selectedCal.getTimeInMillis()) {
+                isHeatStart = true;
+                isPredicted = true;
+            }
+
+            // Predicted fertile window
+            Calendar predictedFertileStart = Calendar.getInstance();
+            predictedFertileStart.setTime(nextHeatCal.getTime());
+            predictedFertileStart.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_START_DAY);
+
+            Calendar predictedFertileEnd = Calendar.getInstance();
+            predictedFertileEnd.setTime(predictedFertileStart.getTime());
+            predictedFertileEnd.add(Calendar.DAY_OF_MONTH, FERTILE_WINDOW_DURATION_DAYS - 1);
+
+            if (selectedCal.getTimeInMillis() >= predictedFertileStart.getTimeInMillis() &&
+                    selectedCal.getTimeInMillis() <= predictedFertileEnd.getTimeInMillis()) {
+                isFertileWindow = true;
+                isPredicted = true;
+            }
+        }
+
+        // If no events, just return
+        if (!isHeatStart && !isHeatEnd && !isFertileWindow) {
+            Toast.makeText(this, "No heat cycle events on " + formattedDate, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Build message based on event types
+        StringBuilder message = new StringBuilder();
+        message.append(formattedDate).append("\n\n");
+
+        if (isHeatStart) {
+            if (isPredicted) {
+                message.append("• Predicted heat cycle start date\n");
+            } else {
+                message.append("• Heat cycle start date\n");
+            }
+        }
+
+        if (isHeatEnd) {
+            message.append("• Heat cycle end date\n");
+        }
+
+        if (isFertileWindow) {
+            if (isPredicted) {
+                message.append("• Predicted fertile window\n");
+            } else {
+                message.append("• Fertile window\n");
+            }
+        }
+
+        // Show dialog with event information
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Heat Cycle Details")
+                .setMessage(message.toString())
+                .setPositiveButton("OK", null)
+                .show();
     }
 
     private long getDaysUntil(Date futureDate) {
@@ -254,341 +553,105 @@ public class HeatTrackerActivity extends AppCompatActivity {
 
     private void showAddHeatCycleDialog() {
         try {
-            // Use MaterialAlertDialogBuilder like in VaccineTrackerActivity (which works)
-            View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_heat_cycle, null);
+            // Create dialog directly with the theme
+            final Dialog dialog = new Dialog(this, R.style.DialogTheme);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.dialog_add_heat_cycle);
 
-            // Create builder first
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.DialogTheme);
-            builder.setView(dialogView);
-
-            // Get view references BEFORE creating dialog
-            final TextInputEditText startDateInput = dialogView.findViewById(R.id.startDateInput);
-            final TextInputEditText endDateInput = dialogView.findViewById(R.id.endDateInput);
-            final TextInputEditText durationInput = dialogView.findViewById(R.id.durationInput);
-            final TextInputEditText intensityInput = dialogView.findViewById(R.id.intensityInput);
-            final TextInputEditText symptomsInput = dialogView.findViewById(R.id.symptomsInput);
-            final TextInputEditText notesInput = dialogView.findViewById(R.id.notesInput);
-            final SwitchMaterial reminderSwitch = dialogView.findViewById(R.id.reminderSwitch);
-
-            // Create dialog AFTER getting view references
-            final androidx.appcompat.app.AlertDialog dialog = builder.create();
-
-            // Configure dialog window to prevent window leaks
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
+            // Configure dialog window
+            Window window = dialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
+                WindowManager.LayoutParams layoutParams = window.getAttributes();
+                layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 0.9);
+                window.setAttributes(layoutParams);
             }
 
-            // Set current date for start date
+            // Initialize dialog views - do this AFTER setting content view
+            final TextInputEditText startDateInput = dialog.findViewById(R.id.startDateInput);
+            final TextInputEditText notesInput = dialog.findViewById(R.id.notesInput);
+
+            // Use regular Switch instead of SwitchMaterial
+            final Switch reminderSwitch = dialog.findViewById(R.id.reminderSwitch);
+
+            // Get buttons from dialog
+            Button cancelButton = dialog.findViewById(R.id.cancelButton);
+            Button saveButton = dialog.findViewById(R.id.saveButton);
+
+            // Set current date for start date (default to today)
             final Calendar startCalendar = Calendar.getInstance();
-            startDateInput.setText(dateFormatter.format(startCalendar.getTime()));
-
-            // Set end date 21 days later (typical heat cycle duration)
-            final Calendar endCalendar = Calendar.getInstance();
-            endCalendar.add(Calendar.DAY_OF_MONTH, 21);
-            endDateInput.setText(dateFormatter.format(endCalendar.getTime()));
-
-            // Calculate and set duration
-            int durationDays = 21; // Default
-            try {
-                long diffInMillis = Math.abs(endCalendar.getTimeInMillis() - startCalendar.getTimeInMillis());
-                durationDays = (int) (diffInMillis / (1000 * 60 * 60 * 24));
-            } catch (Exception e) {
-                Log.e("HeatTracker", "Error calculating duration: " + e.getMessage());
-            }
-            durationInput.setText(String.valueOf(durationDays));
+            startDateInput.setText(inputDateFormat.format(startCalendar.getTime()));
 
             // Handle date selection for start date
             startDateInput.setOnClickListener(v -> {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        this,
+                        (view, year, month, dayOfMonth) -> {
+                            startCalendar.set(year, month, dayOfMonth);
+                            startDateInput.setText(inputDateFormat.format(startCalendar.getTime()));
+                        },
+                        startCalendar.get(Calendar.YEAR),
+                        startCalendar.get(Calendar.MONTH),
+                        startCalendar.get(Calendar.DAY_OF_MONTH)
+                );
+
+                // Set the maximum date as today
+                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+                datePickerDialog.show();
+            });
+
+            // Set button click listeners
+            cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+            saveButton.setOnClickListener(v -> {
+                // Basic validation
+                if (startDateInput.getText() == null || startDateInput.getText().toString().isEmpty()) {
+                    Toast.makeText(this, "Start date is required", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Create heat cycle object
+                HeatCycle newCycle = new HeatCycle();
+                newCycle.setPetId(currentPetId);
+
                 try {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            HeatTrackerActivity.this,
-                            (view, year, month, dayOfMonth) -> {
-                                startCalendar.set(year, month, dayOfMonth);
-                                startDateInput.setText(dateFormatter.format(startCalendar.getTime()));
+                    // Parse dates
+                    newCycle.setStartDate(inputDateFormat.parse(startDateInput.getText().toString()));
 
-                                // Update duration when start date changes
-                                try {
-                                    long diffInMillis = Math.abs(endCalendar.getTimeInMillis() - startCalendar.getTimeInMillis());
-                                    int days = (int) (diffInMillis / (1000 * 60 * 60 * 24));
-                                    durationInput.setText(String.valueOf(days));
-                                } catch (Exception e) {
-                                    Log.e("HeatTracker", "Error updating duration: " + e.getMessage());
-                                }
-                            },
-                            startCalendar.get(Calendar.YEAR),
-                            startCalendar.get(Calendar.MONTH),
-                            startCalendar.get(Calendar.DAY_OF_MONTH)
-                    );
+                    // Calculate estimated end date (21 days after start)
+                    Calendar endCal = Calendar.getInstance();
+                    endCal.setTime(newCycle.getStartDate());
+                    endCal.add(Calendar.DAY_OF_MONTH, AVERAGE_HEAT_DURATION_DAYS);
+                    newCycle.setEndDate(endCal.getTime());
 
-                    // Set the maximum date as today
-                    datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-                    datePickerDialog.show();
-                } catch (Exception e) {
-                    Log.e("HeatTracker", "Error showing start date picker: " + e.getMessage());
+                    // Set default duration
+                    newCycle.setDuration(AVERAGE_HEAT_DURATION_DAYS);
+
+                    // Set other fields
+                    newCycle.setIntensity("Normal"); // Default intensity
+                    newCycle.setSymptoms(""); // No default symptoms
+                    newCycle.setNotes(notesInput.getText() != null ?
+                            notesInput.getText().toString() : "");
+                    newCycle.setReminderSet(reminderSwitch.isChecked());
+                    newCycle.setCreatedAt(new Date());
+
+                    // Save to database
+                    heatCycleViewModel.insert(newCycle);
+
+                    Toast.makeText(this, "Heat cycle added successfully!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+
+                } catch (ParseException e) {
+                    Toast.makeText(this, "Error parsing dates", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Date parsing error: " + e.getMessage());
                 }
             });
 
-            // Handle date selection for end date
-            endDateInput.setOnClickListener(v -> {
-                try {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            HeatTrackerActivity.this,
-                            (view, year, month, dayOfMonth) -> {
-                                endCalendar.set(year, month, dayOfMonth);
-                                endDateInput.setText(dateFormatter.format(endCalendar.getTime()));
-
-                                // Update duration when end date changes
-                                try {
-                                    long diffInMillis = Math.abs(endCalendar.getTimeInMillis() - startCalendar.getTimeInMillis());
-                                    int days = (int) (diffInMillis / (1000 * 60 * 60 * 24));
-                                    durationInput.setText(String.valueOf(days));
-                                } catch (Exception e) {
-                                    Log.e("HeatTracker", "Error updating duration: " + e.getMessage());
-                                }
-                            },
-                            endCalendar.get(Calendar.YEAR),
-                            endCalendar.get(Calendar.MONTH),
-                            endCalendar.get(Calendar.DAY_OF_MONTH)
-                    );
-
-                    datePickerDialog.show();
-                } catch (Exception e) {
-                    Log.e("HeatTracker", "Error showing end date picker: " + e.getMessage());
-                }
-            });
-
-            // Get the buttons from dialogView
-            Button cancelButton = dialogView.findViewById(R.id.cancelButton);
-            Button saveButton = dialogView.findViewById(R.id.saveButton);
-
-            // Set click listeners
-            if (cancelButton != null) {
-                cancelButton.setOnClickListener(v -> dialog.dismiss());
-            }
-
-            if (saveButton != null) {
-                saveButton.setOnClickListener(v -> {
-                    // Validate required fields
-                    if (startDateInput.getText() == null || startDateInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(HeatTrackerActivity.this, "Start date is required", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (durationInput.getText() == null || durationInput.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(HeatTrackerActivity.this, "Duration is required", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Run the saving operation in a background thread
-                    new Thread(() -> {
-                        try {
-                            Date startDate = null;
-                            Date endDate = null;
-
-                            try {
-                                startDate = dateFormatter.parse(startDateInput.getText().toString());
-                            } catch (Exception e) {
-                                Log.e("HeatTracker", "Error parsing start date: " + e.getMessage());
-                                // Default to today if parsing fails
-                                startDate = new Date();
-                            }
-
-                            try {
-                                endDate = dateFormatter.parse(endDateInput.getText().toString());
-                            } catch (Exception e) {
-                                Log.e("HeatTracker", "Error parsing end date: " + e.getMessage());
-                                // Calculate default end date based on duration
-                                Calendar cal = Calendar.getInstance();
-                                cal.setTime(startDate);
-                                try {
-                                    int duration = Integer.parseInt(durationInput.getText().toString());
-                                    cal.add(Calendar.DAY_OF_MONTH, duration);
-                                } catch (Exception ex) {
-                                    cal.add(Calendar.DAY_OF_MONTH, 21); // Default 21 days
-                                }
-                                endDate = cal.getTime();
-                            }
-
-                            // Parse duration
-                            int duration = 21; // Default
-                            try {
-                                duration = Integer.parseInt(durationInput.getText().toString());
-                            } catch (Exception e) {
-                                Log.e("HeatTracker", "Error parsing duration: " + e.getMessage());
-                            }
-
-                            // Create and save heat cycle
-                            final HeatCycle newCycle = new HeatCycle();
-                            newCycle.setPetId(currentPetId);
-                            newCycle.setStartDate(startDate);
-                            newCycle.setEndDate(endDate);
-                            newCycle.setDuration(duration);
-
-                            // Set other field values
-                            newCycle.setIntensity(intensityInput.getText() != null ?
-                                    intensityInput.getText().toString() : "");
-                            newCycle.setSymptoms(symptomsInput.getText() != null ?
-                                    symptomsInput.getText().toString() : "");
-                            newCycle.setNotes(notesInput.getText() != null ?
-                                    notesInput.getText().toString() : "");
-                            newCycle.setReminderSet(reminderSwitch != null && reminderSwitch.isChecked());
-                            newCycle.setCreatedAt(new Date());
-
-                            // Save to database
-                            heatCycleViewModel.insert(newCycle);
-
-                            runOnUiThread(() -> {
-                                Toast.makeText(HeatTrackerActivity.this,
-                                        "Heat cycle saved successfully!", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                            });
-                        } catch (Exception e) {
-                            Log.e("HeatTracker", "Error saving heat cycle: " + e.getMessage());
-                            runOnUiThread(() -> {
-                                Toast.makeText(HeatTrackerActivity.this,
-                                        "Error saving heat cycle", Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                    }).start();
-                });
-            }
-
-            // Show the dialog
             dialog.show();
 
         } catch (Exception e) {
-            Log.e("HeatTracker", "Error showing dialog: " + e.getMessage());
-            Toast.makeText(this, "Error initializing dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Dialog creation error: " + e.getMessage(), e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-    }
-
-    /**
-     * Safe helper method to get text from an EditText
-     */
-    private String getTextSafely(TextInputEditText input) {
-        if (input == null || input.getText() == null) {
-            return "";
-        }
-        return input.getText().toString();
-    }
-
-    /**
-     * Safe helper method to show a date picker with proper error handling
-     */
-    private void safeShowDatePicker(TextInputEditText dateField, Calendar calendar, DateSelectedCallback callback) {
-        try {
-            DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    this,
-                    (view, year, month, dayOfMonth) -> {
-                        try {
-                            calendar.set(year, month, dayOfMonth);
-                            dateField.setText(dateFormatter.format(calendar.getTime()));
-
-                            // Execute the callback if provided
-                            if (callback != null) {
-                                callback.onDateSelected(calendar.getTime());
-                            }
-                        } catch (Exception e) {
-                            Log.e("HeatTracker", "Error setting selected date: " + e.getMessage());
-                        }
-                    },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-            );
-
-            // Set max date to today for start date
-            if (dateField.getId() == R.id.startDateInput) {
-                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-            }
-
-            datePickerDialog.show();
-        } catch (Exception e) {
-            Log.e("HeatTracker", "Error showing date picker: " + e.getMessage());
-            Toast.makeText(this, "Error showing date picker", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Callback interface for date selection
-     */
-    private interface DateSelectedCallback {
-        void onDateSelected(Date newDate);
-    }
-
-    /**
-     * Helper method to update duration between two dates
-     */
-    private void updateDuration(Date startDate, Date endDate, TextInputEditText durationInput) {
-        if (startDate != null && endDate != null) {
-            try {
-                long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
-                long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-                durationInput.setText(String.valueOf(diff));
-            } catch (Exception e) {
-                Log.e("HeatTracker", "Error calculating duration: " + e.getMessage());
-                durationInput.setText("21"); // Default to 21 days if calculation fails
-            }
-        }
-    }
-
-    private boolean validateInputs(TextInputEditText startDateInput, TextInputEditText durationInput) {
-        boolean isValid = true;
-
-        if (TextUtils.isEmpty(startDateInput.getText())) {
-            startDateInput.setError("Start date is required");
-            isValid = false;
-        }
-
-        if (TextUtils.isEmpty(durationInput.getText())) {
-            durationInput.setError("Duration is required");
-            isValid = false;
-        } else {
-            try {
-                int duration = Integer.parseInt(durationInput.getText().toString());
-                if (duration <= 0) {
-                    durationInput.setError("Duration must be greater than 0");
-                    isValid = false;
-                }
-            } catch (NumberFormatException e) {
-                durationInput.setError("Invalid duration");
-                isValid = false;
-            }
-        }
-
-        return isValid;
-    }
-
-    private Date parseDate(String dateStr) {
-        try {
-            return dateFormatter.parse(dateStr);
-        } catch (ParseException e) {
-            return new Date(); // Default to current date if parsing fails
-        }
-    }
-
-    private int parseDuration(String durationStr) {
-        try {
-            return Integer.parseInt(durationStr);
-        } catch (NumberFormatException e) {
-            return 0; // Default to 0 if parsing fails
-        }
-    }
-
-    private void saveHeatCycle(Date startDate, Date endDate, int duration,
-                               String intensity, String symptoms, String notes, boolean reminderSet) {
-        HeatCycle newCycle = new HeatCycle();
-        newCycle.setPetId(currentPetId);
-        newCycle.setStartDate(startDate);
-        newCycle.setEndDate(endDate);
-        newCycle.setDuration(duration);
-        newCycle.setIntensity(intensity);
-        newCycle.setSymptoms(symptoms);
-        newCycle.setNotes(notes);
-        newCycle.setReminderSet(reminderSet);
-        newCycle.setCreatedAt(new Date()); // Current timestamp
-
-        heatCycleViewModel.insert(newCycle);
-        Toast.makeText(this, "Heat cycle saved successfully!", Toast.LENGTH_SHORT).show();
     }
 }

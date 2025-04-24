@@ -76,6 +76,9 @@ public class HeatCycleAdapter extends RecyclerView.Adapter<HeatCycleAdapter.Heat
         this.heatCycles = heatCycles;
         notifyDataSetChanged();
     }
+    public List<HeatCycle> getHeatCycles() {
+        return this.heatCycles;
+    }
 
     class HeatCycleViewHolder extends RecyclerView.ViewHolder {
         private TextView startDateTextView;
