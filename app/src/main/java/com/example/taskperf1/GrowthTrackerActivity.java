@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -275,8 +276,6 @@ public class GrowthTrackerActivity extends AppCompatActivity {
                 android.net.Uri imageUri = android.net.Uri.parse(pet.getProfilePicture());
                 com.bumptech.glide.Glide.with(this)
                         .load(imageUri)
-                        .placeholder(R.drawable.dogpic)
-                        .error(R.drawable.dogpic)
                         .centerCrop()
                         .into(petImageView);
             } catch (Exception e) {
@@ -295,10 +294,14 @@ public class GrowthTrackerActivity extends AppCompatActivity {
                     growthEntries = entries;
 
                     if (!entries.isEmpty()) {
+                        if (weightChart != null) {
+                            weightChart.clear();
+                            weightChart.fitScreen();
+                        }
+
                         updateGrowthMetrics(entries);
                         updateChart(entries);
 
-                        // Update the recycler view with the latest 3 entries
                         List<GrowthEntry> recentEntries = entries.size() > 3 ?
                                 entries.subList(0, 3) : new ArrayList<>(entries);
 
@@ -308,14 +311,12 @@ public class GrowthTrackerActivity extends AppCompatActivity {
                                 adapter.setPet(currentPet);
                             }
                         }
-                    } else {
-                        // If we have a pet with initial measurements but no entries yet,
-                        // those will be added by checkForInitialGrowthEntry
                     }
                 }
             }
         });
     }
+
 
     private void updateGrowthMetrics(List<GrowthEntry> entries) {
         if (entries == null || entries.isEmpty()) return;
@@ -342,9 +343,9 @@ public class GrowthTrackerActivity extends AppCompatActivity {
             lengthGainValue.setText(String.format(Locale.getDefault(), "%+.1f cm", lengthGain));
 
             // Set text color based on gain (green for positive, red for negative)
-            weightGainValue.setTextColor(getResources().getColor(weightGain >= 0 ? R.color.brand_green : R.color.red));
-            heightGainValue.setTextColor(getResources().getColor(heightGain >= 0 ? R.color.brand_green : R.color.red));
-            lengthGainValue.setTextColor(getResources().getColor(lengthGain >= 0 ? R.color.brand_green : R.color.red));
+            weightGainValue.setTextColor(ContextCompat.getColor(this, weightGain >= 0 ? R.color.brand_green : R.color.red));
+            heightGainValue.setTextColor(ContextCompat.getColor(this,heightGain >= 0 ? R.color.brand_green : R.color.red));
+            lengthGainValue.setTextColor(ContextCompat.getColor(this,lengthGain >= 0 ? R.color.brand_green : R.color.red));
         } else {
             // If only one entry, show initial values as gains
             weightGainValue.setText(String.format(Locale.getDefault(), "%+.1f kg", latestEntry.getWeight()));
@@ -352,9 +353,9 @@ public class GrowthTrackerActivity extends AppCompatActivity {
             lengthGainValue.setText(String.format(Locale.getDefault(), "%+.1f cm", latestEntry.getLength()));
 
             // All values are gains (positive)
-            weightGainValue.setTextColor(getResources().getColor(R.color.brand_green));
-            heightGainValue.setTextColor(getResources().getColor(R.color.brand_green));
-            lengthGainValue.setTextColor(getResources().getColor(R.color.brand_green));
+            weightGainValue.setTextColor(ContextCompat.getColor(this,R.color.brand_green));
+            heightGainValue.setTextColor(ContextCompat.getColor(this,R.color.brand_green));
+            lengthGainValue.setTextColor(ContextCompat.getColor(this,R.color.brand_green));
         }
     }
 
@@ -363,6 +364,9 @@ public class GrowthTrackerActivity extends AppCompatActivity {
             setupEmptyChart();
             return;
         }
+
+        // Important: Always clear the chart before adding new data
+        weightChart.clear();
 
         // Create a copy of entries and sort from oldest to newest for the chart
         List<GrowthEntry> sortedEntries = new ArrayList<>(entries);
@@ -405,8 +409,16 @@ public class GrowthTrackerActivity extends AppCompatActivity {
             weightChart.setExtraOffsets(20, 20, 20, 20);
         }
 
-        // Refresh the chart
+        // Ensure these settings are applied every time
+        weightChart.getLegend().setEnabled(false);
+        weightChart.getDescription().setEnabled(false);
+
+        // Animate the chart to show changes
+        weightChart.animateX(500);
+
+        // Force layout refresh
         weightChart.invalidate();
+        weightChart.notifyDataSetChanged();
     }
 
     private void styleDataSet(LineDataSet dataSet) {
@@ -561,9 +573,17 @@ public class GrowthTrackerActivity extends AppCompatActivity {
         newEntry.setHeight(height);
         newEntry.setLength(length);
         newEntry.setNotes(notes);
-        newEntry.setCreatedAt(new Date()); // Current timestamp
+        newEntry.setCreatedAt(new Date());
 
         growthEntryViewModel.insert(newEntry);
         Toast.makeText(this, "Growth entry saved successfully!", Toast.LENGTH_SHORT).show();
+
+
+        new Handler().postDelayed(() -> {
+            if (growthEntryViewModel != null) {
+                growthEntryViewModel.getGrowthEntriesByPet(currentPetId).removeObservers(this);
+                loadGrowthEntries();
+            }
+        }, 300);
     }
 }

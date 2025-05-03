@@ -14,13 +14,6 @@
         android:scaleType="fitCenter"
         android:contentDescription="Full size photo" />
 
-    <!-- Container for draggable text overlays -->
-    <FrameLayout
-        android:id="@+id/textOverlayContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="false"/>
-
     <!-- Top toolbar with back and delete buttons -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -70,19 +63,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
-
-    <!-- Edit/Add Text button (bottom left) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addTextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_edit"
-        app:fabSize="mini"
-        app:backgroundTint="#99000000"
-        app:tint="@color/white"
-        android:contentDescription="Add text to photo" />
 
     <!-- Favorite button (bottom right) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

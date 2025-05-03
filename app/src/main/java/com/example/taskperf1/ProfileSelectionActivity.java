@@ -150,10 +150,6 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 Uri imageUri = Uri.parse(pet.getProfilePicture());
                 Glide.with(this)
                         .load(imageUri)
-                        .placeholder(R.drawable.dogpic)
-                        .error(R.drawable.dogpic)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
                         .centerCrop()
                         .into(profileImage);
             } catch (Exception e) {
@@ -273,23 +269,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
 
             // Add image handling with null check
             if (tempSelectedImagePath != null && !tempSelectedImagePath.isEmpty()) {
-                try {
-                    // Validate that URI is accessible
-                    Uri testUri = Uri.parse(tempSelectedImagePath);
-                    try {
-                        // Just checking if we can access the URI
-                        getContentResolver().getType(testUri);
-                        newPet.setProfilePicture(tempSelectedImagePath);
-                    } catch (Exception e) {
-                        // If we can't resolve the URI, use default
-                        Log.e(TAG, "Error validating image URI: " + e.getMessage());
-                        tempSelectedImagePath = null;
-                        Toast.makeText(ProfileSelectionActivity.this, "Selected image not accessible, using default", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error parsing URI: " + e.getMessage());
-                    tempSelectedImagePath = null;
-                }
+                newPet.setProfilePicture(tempSelectedImagePath);
             }
 
             newPet.setCreatedAt(new Date()); // Set creation timestamp
@@ -427,23 +407,26 @@ public class ProfileSelectionActivity extends AppCompatActivity {
             try {
                 Uri imageUri = Uri.parse(pet.getProfilePicture());
 
-                // Use the same approach that works in the profile display
+                // Clear any tint
+                dialogPreviewImage.setImageTintList(null);
+
+                // Use the improved loading method
                 Glide.with(this)
                         .load(imageUri)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Important
-                        .skipMemoryCache(true) // Important
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
                         .placeholder(R.drawable.blankprofilepic)
                         .error(R.drawable.blankprofilepic)
-                        .into(new SimpleTarget<Drawable>() {
-                            @Override
-                            public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                dialogPreviewImage.setImageDrawable(resource);
-                            }
-                        });
+                        .centerCrop()
+                        .into(dialogPreviewImage);
+
+                Log.d(TAG, "Loaded existing pet image: " + imageUri);
             } catch (Exception e) {
                 Log.e(TAG, "Error loading pet image in dialog: " + e.getMessage());
                 dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
             }
+        } else {
+            dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
         }
 
         // Set up image selection button
@@ -640,7 +623,7 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                 if (selectedImage != null) {
                     Log.d(TAG, "Selected image URI: " + selectedImage);
 
-                    // Save URI regardless of display success
+                    // Save URI for later use
                     tempSelectedImagePath = selectedImage.toString();
 
                     if (dialogPreviewImage != null) {
@@ -655,26 +638,16 @@ public class ProfileSelectionActivity extends AppCompatActivity {
                                 }
                             }
 
-                            // Use Glide with SimpleTarget to ensure callback after loading
+                            // Clear any tint that might be applied
+                            dialogPreviewImage.setImageTintList(null);
+
+                            // Load the image using Glide
                             Glide.with(this)
                                     .load(selectedImage)
-                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                    .skipMemoryCache(true)
-                                    .into(new SimpleTarget<Drawable>() {
-                                        @Override
-                                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                            // This callback ensures the image is loaded before setting it
-                                            dialogPreviewImage.setImageDrawable(resource);
-                                            Log.d(TAG, "Image successfully loaded into preview");
-                                        }
+                                    .centerCrop()
+                                    .into(dialogPreviewImage);
 
-                                        @Override
-                                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                            super.onLoadFailed(errorDrawable);
-                                            Log.e(TAG, "Failed to load image into preview");
-                                            dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
-                                        }
-                                    });
+                            Log.d(TAG, "Image loading initiated");
                         } catch (Exception e) {
                             Log.e(TAG, "Error loading image: " + e.getMessage());
                             dialogPreviewImage.setImageResource(R.drawable.blankprofilepic);
@@ -697,20 +670,20 @@ public class ProfileSelectionActivity extends AppCompatActivity {
         }
 
         try {
-            // Clear any previous image first
-            imageView.setImageBitmap(null);
+            // Clear any previous image and tint
+            imageView.setImageTintList(null);
 
             // Load the image
             Glide.with(getApplicationContext())
                     .load(imageUri)
-                    .placeholder(R.drawable.blankprofilepic)
-                    .error(R.drawable.blankprofilepic)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
+                    .placeholder(R.drawable.blankprofilepic)
+                    .error(R.drawable.blankprofilepic)
                     .centerCrop()
                     .into(imageView);
 
-            Log.d(TAG, "Image loaded successfully into preview");
+            Log.d(TAG, "Image loaded successfully into preview: " + imageUri);
         } catch (Exception e) {
             Log.e(TAG, "Error in loadImageIntoPreview: " + e.getMessage());
             imageView.setImageResource(R.drawable.blankprofilepic);

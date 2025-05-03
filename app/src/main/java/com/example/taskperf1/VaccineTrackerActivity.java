@@ -200,8 +200,6 @@ public class VaccineTrackerActivity extends AppCompatActivity {
                 android.net.Uri imageUri = android.net.Uri.parse(pet.getProfilePicture());
                 Glide.with(this)
                         .load(imageUri)
-                        .placeholder(R.drawable.dogpic)
-                        .error(R.drawable.dogpic)
                         .centerCrop()
                         .into(petImage);
             } catch (Exception e) {

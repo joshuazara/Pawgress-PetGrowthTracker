@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskperf1.R;
@@ -76,9 +77,9 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
                         holder.statusIndicator.setBackgroundColor(Color.parseColor("#FFC107"));
                     }
                 } else {
-                    holder.daysLeftTextView.setTextColor(context.getResources().getColor(R.color.brand_green));
+                    holder.daysLeftTextView.setTextColor(ContextCompat.getColor(context, R.color.brand_green));
                     if (holder.statusIndicator != null) {
-                        holder.statusIndicator.setBackgroundColor(context.getResources().getColor(R.color.brand_green));
+                        holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(context,R.color.brand_green));
                     }
                 }
             }
