@@ -43,7 +43,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_detail);
 
-        // Get photo ID from intent
+        
         photoId = getIntent().getIntExtra("photo_id", -1);
         if (photoId == -1) {
             Toast.makeText(this, "Error: Photo not found", Toast.LENGTH_SHORT).show();
@@ -51,27 +51,27 @@ public class PhotoDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize database access
+        
         photoEntryDao = PawgressDatabase.getInstance(this).photoEntryDao();
         executorService = Executors.newSingleThreadExecutor();
 
-        // Initialize UI components
+        
         photoImageView = findViewById(R.id.fullPhotoView);
         dateTextView = findViewById(R.id.photoDateText);
         favoriteButton = findViewById(R.id.favoriteButton);
 
-        // Back button
+        
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> onBackPressed());
 
-        // Favorite button
+        
         favoriteButton.setOnClickListener(v -> toggleFavorite());
 
-        // Delete button
+        
         ImageButton deleteButton = findViewById(R.id.deleteButton);
         deleteButton.setOnClickListener(v -> deletePhoto());
 
-        // Load photo data
+        
         loadPhotoData();
 
     }
@@ -93,7 +93,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         try {
             Uri photoUri = Uri.parse(currentPhoto.getFilePath());
 
-            // Load with Glide - no placeholder to avoid flashing
+            
             Glide.with(this)
                     .load(photoUri)
                     .into(photoImageView);
@@ -104,11 +104,11 @@ public class PhotoDetailActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        // Format and set date
+        
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
         dateTextView.setText(dateFormat.format(currentPhoto.getCaptureDate()));
 
-        // Update favorite button
+        
         updateFavoriteButton();
     }
 

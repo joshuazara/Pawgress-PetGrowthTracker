@@ -32,7 +32,7 @@ public class AllHeatCyclesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_heat_cycles);
 
-        // Get pet ID from intent
+        
         petId = getIntent().getIntExtra("pet_id", -1);
 
         if (petId == -1) {
@@ -40,15 +40,15 @@ public class AllHeatCyclesActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize view models
+        
         heatCycleViewModel = new ViewModelProvider(this).get(HeatCycleViewModel.class);
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
-        // Setup UI
+        
         setupToolbar();
         setupRecyclerView();
 
-        // Load data
+        
         loadPetInfo();
         loadHeatCycles();
     }
@@ -81,7 +81,7 @@ public class AllHeatCyclesActivity extends AppCompatActivity {
                         petNameTextView.setText(pet.getName() + "'s Heat Cycles");
                     }
 
-                    // Verify gender is female
+                    
                     if (pet.getGender() == null || !pet.getGender().equals("Female")) {
                         finish();
                         return;
@@ -96,12 +96,12 @@ public class AllHeatCyclesActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<HeatCycle> cycles) {
                 if (cycles != null) {
-                    // Sort cycles by date if needed
+                    
                     cycles.sort((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate()));
 
                     adapter.setHeatCycles(cycles);
 
-                    // Update UI if empty
+                    
                     updateEmptyState(cycles.isEmpty());
                 }
             }

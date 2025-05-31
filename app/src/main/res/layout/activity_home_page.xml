@@ -9,7 +9,7 @@
     android:background="@color/white"
     tools:context=".HomePageActivity">
 
-    <!-- Banner Header with Full-Width Image -->
+
     <ImageView
         android:id="@+id/petImage"
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Pet Info Card - Positioned to slightly intersect -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/petInfoCard"
         android:layout_width="match_parent"
@@ -58,7 +58,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Grid Layout for Features -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -69,14 +69,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/petInfoCard">
 
-        <!-- Feature Grid - First Row -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Growth Tracker -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/growthTrackerCard"
                 android:layout_width="0dp"
@@ -115,7 +115,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Vaccine Tracker -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/vaccineTrackerCard"
                 android:layout_width="0dp"
@@ -155,7 +155,7 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Feature Grid - Second Row -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -163,7 +163,7 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Camera -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cameraCard"
                 android:layout_width="0dp"
@@ -202,7 +202,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Gallery - This will be in the second row now -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/galleryCard"
                 android:layout_width="0dp"
@@ -242,7 +242,7 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Feature Grid - Third Row (Heat Tracker) -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -250,7 +250,7 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Heat Tracker -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/heatTrackerCard"
                 android:layout_width="0dp"

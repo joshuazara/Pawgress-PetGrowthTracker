@@ -5,12 +5,12 @@
     android:viewportWidth="300"
     android:viewportHeight="180">
 
-    <!-- Background -->
+
     <path
         android:fillColor="#F9F9F9"
         android:pathData="M0,0h300v180h-300z" />
 
-    <!-- Horizontal grid lines -->
+
     <path
         android:strokeWidth="1"
         android:strokeColor="#E0E0E0"
@@ -32,7 +32,7 @@
         android:strokeColor="#E0E0E0"
         android:pathData="M30,150h240" />
 
-    <!-- Line graph -->
+
     <path
         android:strokeWidth="3"
         android:strokeColor="#69D16C"
@@ -40,7 +40,7 @@
         android:strokeLineJoin="round"
         android:pathData="M40,140L100,110L160,90L220,70L260,50" />
 
-    <!-- Data points -->
+
     <path
         android:fillColor="#FFFFFF"
         android:strokeWidth="3"
@@ -67,7 +67,7 @@
         android:strokeColor="#69D16C"
         android:pathData="M260,50m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
 
-    <!-- X-axis labels -->
+
     <path
         android:fillColor="#6B7280"
         android:pathData="M35,165L40,165Q40,170 35,170L35,165Z" />

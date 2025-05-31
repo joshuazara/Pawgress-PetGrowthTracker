@@ -43,12 +43,12 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
     public void onBindViewHolder(@NonNull GrowthEntryViewHolder holder, int position) {
         GrowthEntry currentEntry = growthEntries.get(position);
 
-        // Set entry date
+        
         holder.dateTextView.setText(dateFormat.format(currentEntry.getEntryDate()));
 
-        // Calculate and set age if pet's birth date is available
+        
         if (holder.ageTextView != null && currentPet != null && currentPet.getBirthDate() != null) {
-            // Calculate pet's age at the time of measurement
+            
             long ageInDays = (currentEntry.getEntryDate().getTime() - currentPet.getBirthDate().getTime())
                     / (1000 * 60 * 60 * 24);
 
@@ -65,12 +65,12 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
             holder.ageTextView.setText("Age: Unknown");
         }
 
-        // Set weight, height, and length values
+        
         holder.weightTextView.setText(String.format(Locale.getDefault(), "%.1f kg", currentEntry.getWeight()));
         holder.heightTextView.setText(String.format(Locale.getDefault(), "%.1f cm", currentEntry.getHeight()));
         holder.lengthTextView.setText(String.format(Locale.getDefault(), "%.1f cm", currentEntry.getLength()));
 
-        // Set notes if available
+        
         if (holder.notesTextView != null && currentEntry.getNotes() != null && !currentEntry.getNotes().isEmpty()) {
             holder.notesTextView.setText(currentEntry.getNotes());
             holder.notesTextView.setVisibility(View.VISIBLE);
@@ -91,7 +91,7 @@ public class GrowthEntryAdapter extends RecyclerView.Adapter<GrowthEntryAdapter.
 
     public void setPet(Pet pet) {
         this.currentPet = pet;
-        notifyDataSetChanged(); // Refresh display to update age calculations
+        notifyDataSetChanged(); 
     }
 
     class GrowthEntryViewHolder extends RecyclerView.ViewHolder {

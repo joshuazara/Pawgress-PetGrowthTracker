@@ -7,7 +7,7 @@
         <item name="colorPrimaryContainer">@color/brand_green_light</item>
         <item name="android:windowBackground">@color/white</item>
 
-        <!-- Dialog button color -->
+
         <item name="colorPrimaryVariant">@color/brand_green</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>

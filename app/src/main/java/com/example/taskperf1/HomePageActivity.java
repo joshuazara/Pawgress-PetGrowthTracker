@@ -23,7 +23,7 @@ public class HomePageActivity extends AppCompatActivity {
     private PetViewModel petViewModel;
     private int currentPetId;
 
-    // UI elements
+    
     private ImageView petImage;
     private TextView petNameText;
     private TextView petBreedText;
@@ -31,7 +31,7 @@ public class HomePageActivity extends AppCompatActivity {
     private MaterialCardView heatTrackerCard;
     private MaterialCardView galleryCard;
 
-    // Pet care tips array
+    
     private String[] petCareTips = {
             "Regular exercise is important for your pet's physical and mental health. Aim for at least 30 minutes daily.",
             "Dental care is crucial - try to brush your pet's teeth several times a week to prevent dental disease.",
@@ -50,7 +50,7 @@ public class HomePageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
 
-        // Get the pet ID from the intent
+        
         currentPetId = getIntent().getIntExtra("pet_id", -1);
 
         if (currentPetId == -1) {
@@ -59,10 +59,10 @@ public class HomePageActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize ViewModel
+        
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
-        // Find views
+        
         petImage = findViewById(R.id.petImage);
         petNameText = findViewById(R.id.petNameText);
         petBreedText = findViewById(R.id.petBreedText);
@@ -70,15 +70,15 @@ public class HomePageActivity extends AppCompatActivity {
         heatTrackerCard = findViewById(R.id.heatTrackerCard);
         galleryCard = findViewById(R.id.galleryCard);
 
-        // Set a random pet care tip
+        
         petTipText.setText(getRandomPetCareTip());
 
-        // Observe pet data changes
+        
         petViewModel.getPetById(currentPetId).observe(this, pet -> {
             if (pet != null) {
                 updatePetInfo(pet);
 
-                // Show/hide Heat Tracker based on gender
+                
                 if (pet.getGender() != null && pet.getGender().equals("Female")) {
                     heatTrackerCard.setVisibility(View.VISIBLE);
                 } else {
@@ -87,38 +87,38 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
-        // Set up card click listeners
+        
         setupCardClickListeners();
     }
 
     private void updatePetInfo(Pet pet) {
         petNameText.setText(pet.getName());
 
-        // Format breed, gender and age
+        
         String breedGenderAge = "";
         if (pet.getBreed() != null && !pet.getBreed().isEmpty()) {
             breedGenderAge = pet.getBreed();
         }
 
-        // Add gender if available
+        
         if (pet.getGender() != null && !pet.getGender().isEmpty()) {
             if (!breedGenderAge.isEmpty()) {
                 breedGenderAge += " • ";
             }
             breedGenderAge += pet.getGender();
 
-            // Show/hide Heat Tracker based on gender
+            
             if (pet.getGender().equals("Female")) {
                 heatTrackerCard.setVisibility(View.VISIBLE);
             } else {
                 heatTrackerCard.setVisibility(View.GONE);
             }
         } else {
-            // Default to hiding heat tracker if gender is not specified
+            
             heatTrackerCard.setVisibility(View.GONE);
         }
 
-        // Add age
+        
         if (pet.getBirthDate() != null) {
             long ageInMillis = System.currentTimeMillis() - pet.getBirthDate().getTime();
             long ageInDays = ageInMillis / (1000 * 60 * 60 * 24);
@@ -140,7 +140,7 @@ public class HomePageActivity extends AppCompatActivity {
 
         petBreedText.setText(breedGenderAge);
 
-        // Load pet image if available
+        
         if (pet.getProfilePicture() != null && !pet.getProfilePicture().isEmpty()) {
             try {
                 Uri imageUri = Uri.parse(pet.getProfilePicture());
@@ -149,11 +149,11 @@ public class HomePageActivity extends AppCompatActivity {
                         .centerCrop()
                         .into(petImage);
             } catch (Exception e) {
-                // If there's an error, load a placeholder
+                
                 petImage.setImageResource(R.drawable.dogpic);
             }
         } else {
-            // Set a default image
+            
             petImage.setImageResource(R.drawable.dogpic);
         }
     }

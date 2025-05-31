@@ -65,7 +65,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Empty State View - Shown when no data exists -->
+
     <LinearLayout
         android:id="@+id/emptyStateContainer"
         android:layout_width="match_parent"
@@ -103,7 +103,7 @@
 
     </LinearLayout>
 
-    <!-- Content Container - Shown when data exists -->
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/contentContainer"
         android:layout_width="match_parent"
@@ -120,7 +120,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
-            <!-- Pet Info Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/petInfoCard"
                 android:layout_width="match_parent"
@@ -177,7 +177,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Calendar Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/calendarCard"
                 android:layout_width="match_parent"
@@ -192,7 +192,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Calendar section title -->
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -212,7 +212,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Current Cycle Events Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/currentCycleEventsCard"
                 android:layout_width="match_parent"
@@ -236,7 +236,7 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
 
-                    <!-- Container for dynamically added event indicators -->
+
                     <LinearLayout
                         android:id="@+id/upcomingEventsContainer"
                         android:layout_width="match_parent"
@@ -247,7 +247,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Heat Cycle Information Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/currentStatusCard"
                 android:layout_width="match_parent"
@@ -381,7 +381,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Heat Cycle History Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/heatCycleHistoryCard"
                 android:layout_width="match_parent"
@@ -434,7 +434,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Floating Action Button for adding heat cycles -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addHeatCycleFab"
         android:layout_width="wrap_content"

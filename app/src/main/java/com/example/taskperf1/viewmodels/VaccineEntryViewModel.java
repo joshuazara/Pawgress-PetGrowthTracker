@@ -7,46 +7,58 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.example.taskperf1.database.VaccineEntry;
-import com.example.taskperf1.repositories.VaccineEntryRepository;
+import com.example.taskperf1.database.VaccineEntryDao;
+import com.example.taskperf1.database.PawgressDatabase;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VaccineEntryViewModel extends AndroidViewModel {
-    private VaccineEntryRepository repository;
-    private LiveData<List<VaccineEntry>> allVaccineEntries;
+    private VaccineEntryDao dao;
+    private ExecutorService executorService;
 
     public VaccineEntryViewModel(@NonNull Application application) {
         super(application);
-        repository = new VaccineEntryRepository(application);
-        allVaccineEntries = repository.getAllVaccineEntries();
+        dao = PawgressDatabase.getInstance(application).vaccineEntryDao();
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     public LiveData<List<VaccineEntry>> getAllVaccineEntries() {
-        return allVaccineEntries;
+        return dao.getAllVaccineEntries();
     }
 
     public LiveData<List<VaccineEntry>> getVaccineEntriesByPet(int petId) {
-        return repository.getVaccineEntriesByPet(petId);
+        return dao.getVaccineEntriesByPet(petId);
     }
 
     public LiveData<VaccineEntry> getVaccineEntryById(int vaccineId) {
-        return repository.getVaccineEntryById(vaccineId);
+        return dao.getVaccineEntryById(vaccineId);
     }
 
     public LiveData<List<VaccineEntry>> getUpcomingVaccinesForPet(int petId) {
-        return repository.getUpcomingVaccinesForPet(petId, new Date());
+        return dao.getUpcomingVaccinesForPet(petId, new Date());
     }
 
     public void insert(VaccineEntry entry) {
-        repository.insert(entry);
+        if (entry.getCreatedAt() == null) {
+            entry.setCreatedAt(new Date());
+        }
+        executorService.execute(() -> dao.insert(entry));
     }
 
     public void update(VaccineEntry entry) {
-        repository.update(entry);
+        executorService.execute(() -> dao.update(entry));
     }
 
     public void delete(VaccineEntry entry) {
-        repository.delete(entry);
+        executorService.execute(() -> dao.delete(entry));
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        executorService.shutdown();
     }
 }

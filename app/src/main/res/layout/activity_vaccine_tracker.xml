@@ -79,7 +79,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
-            <!-- Pet Info Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/petInfoCard"
                 android:layout_width="match_parent"
@@ -136,7 +136,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Upcoming Vaccinations Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/upcomingVaccinesCard"
                 android:layout_width="match_parent"
@@ -170,7 +170,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Vaccination History Card -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/vaccineHistoryCard"
                 android:layout_width="match_parent"
@@ -201,7 +201,7 @@
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false" />
 
-                    <!-- View All Button -->
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/viewAllVaccinesButton"
                         android:layout_width="match_parent"
@@ -224,7 +224,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Empty State View -->
+
     <LinearLayout
         android:id="@+id/emptyStateContainer"
         android:layout_width="match_parent"
@@ -263,7 +263,7 @@
 
     </LinearLayout>
 
-    <!-- Floating Action Button for adding vaccines -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addVaccineFab"
         android:layout_width="wrap_content"

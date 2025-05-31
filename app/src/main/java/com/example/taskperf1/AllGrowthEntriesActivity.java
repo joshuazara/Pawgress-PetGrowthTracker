@@ -32,7 +32,7 @@ public class AllGrowthEntriesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_growth_entries);
 
-        // Get pet ID from intent
+        
         petId = getIntent().getIntExtra("pet_id", -1);
 
         if (petId == -1) {
@@ -40,15 +40,15 @@ public class AllGrowthEntriesActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize view models
+        
         growthEntryViewModel = new ViewModelProvider(this).get(GrowthEntryViewModel.class);
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
-        // Setup UI
+        
         setupToolbar();
         setupRecyclerView();
 
-        // Load data
+        
         loadPetInfo();
         loadGrowthEntries();
     }
@@ -81,7 +81,7 @@ public class AllGrowthEntriesActivity extends AppCompatActivity {
                         petNameTextView.setText(pet.getName() + "'s Growth History");
                     }
 
-                    // Update adapter with pet info for age calculation
+                    
                     adapter.setPet(pet);
                 }
             }
@@ -95,7 +95,7 @@ public class AllGrowthEntriesActivity extends AppCompatActivity {
                 if (entries != null) {
                     adapter.setGrowthEntries(entries);
 
-                    // Update UI if empty
+                    
                     updateEmptyState(entries.isEmpty());
                 }
             }

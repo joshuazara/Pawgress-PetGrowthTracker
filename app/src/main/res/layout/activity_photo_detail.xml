@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!-- Main photo view -->
+
     <ImageView
         android:id="@+id/fullPhotoView"
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         android:scaleType="fitCenter"
         android:contentDescription="Full size photo" />
 
-    <!-- Top toolbar with back and delete buttons -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -64,7 +64,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Favorite button (bottom right) -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/favoriteButton"
         android:layout_width="wrap_content"

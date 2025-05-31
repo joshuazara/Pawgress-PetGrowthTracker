@@ -117,7 +117,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Notes section added -->
+
         <TextView
             android:id="@+id/notesText"
             android:layout_width="match_parent"

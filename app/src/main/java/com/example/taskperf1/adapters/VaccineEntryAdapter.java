@@ -28,7 +28,7 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
     private List<VaccineEntry> vaccineEntries = new ArrayList<>();
     private final Context context;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-    private final boolean isUpcoming;  // To differentiate between upcoming and history entries
+    private final boolean isUpcoming;  
 
     public VaccineEntryAdapter(Context context, boolean isUpcoming) {
         this.context = context;
@@ -53,26 +53,26 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
     public void onBindViewHolder(@NonNull VaccineEntryViewHolder holder, int position) {
         VaccineEntry currentEntry = vaccineEntries.get(position);
 
-        // Common fields
+        
         holder.vaccineNameTextView.setText(currentEntry.getVaccineType());
 
         if (isUpcoming) {
-            // Upcoming vaccine entry
+            
             if (currentEntry.getNextDueDate() != null) {
                 holder.dueDateTextView.setText("Due: " + dateFormat.format(currentEntry.getNextDueDate()));
 
-                // Calculate and display days left
+                
                 long daysLeft = getDaysLeft(currentEntry.getNextDueDate());
                 holder.daysLeftTextView.setText(daysLeft + " days left");
 
-                // Set color based on urgency
+                
                 if (daysLeft <= 7) {
-                    holder.daysLeftTextView.setTextColor(Color.parseColor("#E53935")); // Red
+                    holder.daysLeftTextView.setTextColor(Color.parseColor("#E53935")); 
                     if (holder.statusIndicator != null) {
                         holder.statusIndicator.setBackgroundColor(Color.parseColor("#E53935"));
                     }
                 } else if (daysLeft <= 30) {
-                    holder.daysLeftTextView.setTextColor(Color.parseColor("#FFC107")); // Yellow
+                    holder.daysLeftTextView.setTextColor(Color.parseColor("#FFC107")); 
                     if (holder.statusIndicator != null) {
                         holder.statusIndicator.setBackgroundColor(Color.parseColor("#FFC107"));
                     }
@@ -84,17 +84,17 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
                 }
             }
 
-            // Set reminder icon based on reminder setting
+            
             if (holder.reminderIcon != null) {
                 holder.reminderIcon.setVisibility(currentEntry.isReminderSet() ? View.VISIBLE : View.GONE);
             }
         } else {
-            // History vaccine entry
+            
             if (currentEntry.getAdministeredDate() != null) {
                 holder.adminDateTextView.setText(dateFormat.format(currentEntry.getAdministeredDate()));
             }
 
-            // Set veterinarian and clinic info
+            
             String vetInfo = "";
             if (currentEntry.getVeterinarian() != null && !currentEntry.getVeterinarian().isEmpty()) {
                 vetInfo = "Dr. " + currentEntry.getVeterinarian();
@@ -113,7 +113,7 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
                 holder.vetInfoTextView.setVisibility(View.GONE);
             }
 
-            // Set next due date
+            
             if (currentEntry.getNextDueDate() != null && holder.nextDueTextView != null) {
                 holder.nextDueTextView.setText("Next due: " + dateFormat.format(currentEntry.getNextDueDate()));
                 holder.nextDueTextView.setVisibility(View.VISIBLE);
@@ -160,17 +160,17 @@ public class VaccineEntryAdapter extends RecyclerView.Adapter<VaccineEntryAdapte
         VaccineEntryViewHolder(View itemView) {
             super(itemView);
 
-            // Common field
+            
             vaccineNameTextView = itemView.findViewById(R.id.vaccineName);
 
             if (isUpcoming) {
-                // Upcoming vaccine entry fields
+                
                 dueDateTextView = itemView.findViewById(R.id.vaccineDueDate);
                 daysLeftTextView = itemView.findViewById(R.id.daysLeft);
                 reminderIcon = itemView.findViewById(R.id.reminderIcon);
                 statusIndicator = itemView.findViewById(R.id.statusIndicator);
             } else {
-                // History vaccine entry fields
+                
                 adminDateTextView = itemView.findViewById(R.id.vaccineDate);
                 vetInfoTextView = itemView.findViewById(R.id.vaccineVetInfo);
                 nextDueTextView = itemView.findViewById(R.id.vaccineNextDue);

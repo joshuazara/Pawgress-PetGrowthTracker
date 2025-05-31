@@ -42,15 +42,15 @@ public class HeatCycleAdapter extends RecyclerView.Adapter<HeatCycleAdapter.Heat
     public void onBindViewHolder(@NonNull HeatCycleViewHolder holder, int position) {
         HeatCycle currentCycle = heatCycles.get(position);
 
-        // Set start date
+        
         if (currentCycle.getStartDate() != null) {
             holder.startDateTextView.setText(dateFormat.format(currentCycle.getStartDate()));
         }
 
-        // Set duration
+        
         holder.durationTextView.setText(currentCycle.getDuration() + " days");
 
-        // Set end date if available
+        
         if (currentCycle.getEndDate() != null) {
             holder.endDateTextView.setText("End: " + dateFormat.format(currentCycle.getEndDate()));
             holder.endDateTextView.setVisibility(View.VISIBLE);
@@ -58,7 +58,7 @@ public class HeatCycleAdapter extends RecyclerView.Adapter<HeatCycleAdapter.Heat
             holder.endDateTextView.setVisibility(View.GONE);
         }
 
-        // Set notes if available
+        
         if (currentCycle.getNotes() != null && !currentCycle.getNotes().isEmpty()) {
             holder.notesTextView.setText(currentCycle.getNotes());
             holder.notesTextView.setVisibility(View.VISIBLE);

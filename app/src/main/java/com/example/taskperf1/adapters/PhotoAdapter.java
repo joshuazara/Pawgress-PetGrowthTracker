@@ -44,7 +44,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         PhotoEntry photo = photos.get(position);
 
-        // Load image with Glide
+        
         try {
             Uri photoUri = Uri.parse(photo.getFilePath());
             Glide.with(holder.itemView.getContext())
@@ -52,14 +52,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                     .centerCrop()
                     .into(holder.photoImageView);
         } catch (Exception e) {
-            // If loading fails, show placeholder
+            
             holder.photoImageView.setImageResource(R.drawable.ic_camera);
         }
 
-        // Set date
+        
         holder.dateTextView.setText(dateFormat.format(photo.getCaptureDate()));
 
-        // Setup click listener to view full photo
+        
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
             intent.putExtra("photo_id", photo.getPhotoId());

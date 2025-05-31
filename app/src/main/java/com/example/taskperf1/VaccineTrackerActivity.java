@@ -54,7 +54,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private SimpleDateFormat inputDateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
-    // UI elements
+    
     private ShapeableImageView petImage;
     private TextView petName;
     private TextView petBreed;
@@ -69,7 +69,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vaccine_tracker);
 
-        // Get pet ID from intent
+        
         currentPetId = getIntent().getIntExtra("pet_id", -1);
 
         if (currentPetId == -1) {
@@ -78,28 +78,28 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize ViewModels
+        
         vaccineEntryViewModel = new ViewModelProvider(this).get(VaccineEntryViewModel.class);
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
-        // Initialize UI elements
+        
         initializeViews();
         setupBackButton();
         setupAddVaccineButtons();
         setupViewAllButton();
 
-        // Load pet data
+        
         loadPetData();
     }
 
     private void initializeViews() {
-        // Pet info views
+        
         petImage = findViewById(R.id.petImage);
         petName = findViewById(R.id.petName);
         petBreed = findViewById(R.id.petBreed);
         emptyStateView = findViewById(R.id.emptyStateContainer);
 
-        // Setup recycler views
+        
         upcomingVaccinesRecyclerView = findViewById(R.id.upcomingVaccinesRecyclerView);
         if (upcomingVaccinesRecyclerView != null) {
             upcomingAdapter = new VaccineEntryAdapter(this, true);
@@ -160,7 +160,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
                     currentPet = pet;
                     updatePetInfo(pet);
 
-                    // Now load vaccine entries after we have the pet info
+                    
                     loadVaccineEntries();
                 }
             }
@@ -170,7 +170,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
     private void updatePetInfo(Pet pet) {
         petName.setText(pet.getName());
 
-        // Format the age based on birth date
+        
         String ageText = "";
         if (pet.getBirthDate() != null) {
             Calendar dob = Calendar.getInstance();
@@ -194,7 +194,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
 
         petBreed.setText(pet.getBreed() + " • " + ageText);
 
-        // Load profile picture if available
+        
         if (pet.getProfilePicture() != null && !pet.getProfilePicture().isEmpty()) {
             try {
                 android.net.Uri imageUri = android.net.Uri.parse(pet.getProfilePicture());
@@ -211,14 +211,14 @@ public class VaccineTrackerActivity extends AppCompatActivity {
     }
 
     private void loadVaccineEntries() {
-        // Load upcoming vaccines
+        
         vaccineEntryViewModel.getUpcomingVaccinesForPet(currentPetId).observe(this, new Observer<List<VaccineEntry>>() {
             @Override
             public void onChanged(List<VaccineEntry> upcomingEntries) {
                 if (upcomingEntries != null) {
                     upcomingAdapter.setVaccineEntries(upcomingEntries);
 
-                    // Update UI for upcoming vaccines
+                    
                     if (upcomingEntries.isEmpty()) {
                         findViewById(R.id.upcomingVaccinesCard).setVisibility(View.GONE);
                     } else {
@@ -228,12 +228,12 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             }
         });
 
-        // Load vaccine history
+        
         vaccineEntryViewModel.getVaccineEntriesByPet(currentPetId).observe(this, new Observer<List<VaccineEntry>>() {
             @Override
             public void onChanged(List<VaccineEntry> entries) {
                 if (entries != null) {
-                    // Filter out future vaccines for the history
+                    
                     List<VaccineEntry> historyEntries = new ArrayList<>();
                     Date today = new Date();
 
@@ -245,10 +245,10 @@ public class VaccineTrackerActivity extends AppCompatActivity {
 
                     historyAdapter.setVaccineEntries(historyEntries);
 
-                    // Update empty state
+                    
                     updateEmptyState(entries.isEmpty());
 
-                    // Update UI for vaccine history
+                    
                     if (historyEntries.isEmpty()) {
                         findViewById(R.id.vaccineHistoryCard).setVisibility(View.GONE);
                     } else {
@@ -274,7 +274,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_vaccine);
 
-        // Configure dialog window
+        
         Window window = dialog.getWindow();
         if (window != null) {
             window.setBackgroundDrawableResource(R.drawable.dialog_rounded_bg);
@@ -283,7 +283,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             window.setAttributes(layoutParams);
         }
 
-        // Initialize dialog views
+        
         final TextInputEditText vaccineTypeInput = dialog.findViewById(R.id.vaccineTypeInput);
         final TextInputEditText dateInput = dialog.findViewById(R.id.dateInput);
         final TextInputEditText vetInput = dialog.findViewById(R.id.vetInput);
@@ -296,16 +296,16 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         Button cancelButton = dialog.findViewById(R.id.cancelButton);
         Button saveButton = dialog.findViewById(R.id.saveButton);
 
-        // Set current date for administered date
+        
         final Calendar adminCalendar = Calendar.getInstance();
         dateInput.setText(inputDateFormat.format(adminCalendar.getTime()));
 
-        // Calculate and set next due date (default to 1 year later)
+        
         final Calendar nextDueCalendar = Calendar.getInstance();
         nextDueCalendar.add(Calendar.YEAR, 1);
         nextDueDateInput.setText(inputDateFormat.format(nextDueCalendar.getTime()));
 
-        // Handle date selection for administered date
+        
         dateInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -313,7 +313,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             }
         });
 
-        // Handle date selection for next due date
+        
         nextDueDateInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -321,7 +321,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             }
         });
 
-        // Cancel button dismisses the dialog
+        
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -329,7 +329,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
             }
         });
 
-        // Save button validates and saves the entry
+        
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -370,7 +370,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
                     calendar.get(Calendar.DAY_OF_MONTH)
             );
 
-            // Style the date picker dialog buttons
+            
             datePickerDialog.setOnShowListener(dialog -> {
                 try {
                     datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
@@ -415,7 +415,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         try {
             return inputDateFormat.parse(dateStr);
         } catch (ParseException e) {
-            return new Date(); // Default to current date if parsing fails
+            return new Date(); 
         }
     }
 
@@ -432,7 +432,7 @@ public class VaccineTrackerActivity extends AppCompatActivity {
         newEntry.setBatchNumber(batchNumber);
         newEntry.setNotes(notes);
         newEntry.setReminderSet(reminderSet);
-        newEntry.setCreatedAt(new Date()); // Current timestamp
+        newEntry.setCreatedAt(new Date()); 
 
         vaccineEntryViewModel.insert(newEntry);
         Toast.makeText(this, "Vaccine record saved successfully!", Toast.LENGTH_SHORT).show();

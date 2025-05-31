@@ -33,13 +33,13 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        // Get pet ID from intent
+        
         petId = getIntent().getIntExtra("pet_id", -1);
 
-        // Initialize database access
+        
         photoEntryDao = PawgressDatabase.getInstance(this).photoEntryDao();
 
-        // Initialize UI components
+        
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +48,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
-        // Setup take picture FAB
+        
         FloatingActionButton takePictureButton = findViewById(R.id.takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,17 +60,17 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
-        // Setup tabs
+        
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 0) {
-                    // All photos
+                    
                     showFavoritesOnly = false;
                     loadPhotos();
                 } else {
-                    // Favorites only
+                    
                     showFavoritesOnly = true;
                     loadPhotos();
                 }
@@ -83,22 +83,22 @@ public class GalleryActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Setup photo grid
+        
         setupPhotoGrid();
     }
 
     private void setupPhotoGrid() {
         photoGrid = findViewById(R.id.photoGrid);
 
-        // Use a grid layout with 3 columns
+        
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         photoGrid.setLayoutManager(layoutManager);
 
-        // Create and set adapter
+        
         photoAdapter = new PhotoAdapter(this);
         photoGrid.setAdapter(photoAdapter);
 
-        // Load photos
+        
         loadPhotos();
     }
 
@@ -116,7 +116,7 @@ public class GalleryActivity extends AppCompatActivity {
                 });
             }
         } else {
-            // If no pet ID, show all photos
+            
             if (showFavoritesOnly) {
                 photoEntryDao.getAllPhotoEntries().observe(this, photoEntries -> {
                     List<PhotoEntry> favorites = new ArrayList<>();
@@ -155,8 +155,8 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Reload photos when returning to gallery
-        // (e.g. after taking a new photo or deleting one)
+        
+        
         loadPhotos();
     }
 }

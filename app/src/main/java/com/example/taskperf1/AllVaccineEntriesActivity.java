@@ -32,7 +32,7 @@ public class AllVaccineEntriesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_vaccine_entries);
 
-        // Get pet ID from intent
+        
         petId = getIntent().getIntExtra("pet_id", -1);
 
         if (petId == -1) {
@@ -40,15 +40,15 @@ public class AllVaccineEntriesActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize view models
+        
         vaccineEntryViewModel = new ViewModelProvider(this).get(VaccineEntryViewModel.class);
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
-        // Setup UI
+        
         setupToolbar();
         setupRecyclerView();
 
-        // Load data
+        
         loadPetInfo();
         loadVaccineEntries();
     }
@@ -65,7 +65,7 @@ public class AllVaccineEntriesActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.vaccineEntriesRecyclerView);
-        adapter = new VaccineEntryAdapter(this, false); // false = show all entries, not just upcoming
+        adapter = new VaccineEntryAdapter(this, false); 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -92,7 +92,7 @@ public class AllVaccineEntriesActivity extends AppCompatActivity {
                 if (entries != null) {
                     adapter.setVaccineEntries(entries);
 
-                    // Update UI if empty
+                    
                     updateEmptyState(entries.isEmpty());
                 }
             }
